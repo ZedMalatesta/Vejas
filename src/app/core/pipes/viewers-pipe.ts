@@ -4,8 +4,8 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'viewers',
 })
 export class ViewersPipe implements PipeTransform {
-  transform(value: string): string {
-    const numericValue = parseInt(value, 10);
+  transform(value: string | number): string {
+    const numericValue = typeof value === 'number' ? value : parseInt(value, 10);
     if (numericValue >= 1000000000) {
       return (numericValue / 1000000000).toFixed(1) + 'B' + ' viewers';
     }

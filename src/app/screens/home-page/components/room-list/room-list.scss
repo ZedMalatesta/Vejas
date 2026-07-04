@@ -1,0 +1,126 @@
+.room-list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.room-list__header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.room-list__eyebrow {
+  margin: 0;
+  color: var(--app-accent);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.room-list__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.room-list__title {
+  margin: 0;
+  color: var(--app-text);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.room-list__create {
+  padding: 0.5rem 1rem;
+  border-radius: var(--app-radius-md);
+  background: var(--app-accent);
+  color: var(--app-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.room-list__search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  color: var(--app-text);
+  font-size: 0.9rem;
+  transition: border-color var(--app-transition-fast), box-shadow var(--app-transition-fast);
+
+  &::placeholder {
+    color: var(--app-muted);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.room-list__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--app-muted);
+  text-align: center;
+
+  &--error p {
+    margin: 0;
+    color: var(--app-text);
+  }
+}
+
+.room-list__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--app-border);
+  border-top-color: var(--app-accent);
+  border-radius: 50%;
+  animation: room-list-spin 0.8s linear infinite;
+}
+
+@keyframes room-list-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.room-list__retry {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--app-accent);
+  }
+}
+
+.room-list__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .room-list__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1080px) {
+  .room-list__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
