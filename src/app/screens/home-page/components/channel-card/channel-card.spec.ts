@@ -13,6 +13,14 @@ describe('ChannelCard', () => {
 
     fixture = TestBed.createComponent(ChannelCard);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('channel', {
+      id: 1,
+      name: 'Test channel',
+      description: 'Test description',
+      coverUrl: 'https://example.com/cover.jpg',
+      category: 'Gaming',
+      viewers: '42',
+    });
     await fixture.whenStable();
   });
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { ChangePassword } from './change-password';
 import { RouterLink } from '@angular/router';
@@ -10,6 +11,7 @@ describe('ChangePassword', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChangePassword, RouterLink],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChangePassword);

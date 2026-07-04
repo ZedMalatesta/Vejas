@@ -1,12 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { DEFAULT_THEME_CONFIG, THEME_CONFIG } from './core/services/theme/theme.config';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: THEME_CONFIG, useValue: DEFAULT_THEME_CONFIG },
+      ],
     }).compileComponents();
   });
 
