@@ -1,0 +1,71 @@
+<div class="create-room">
+  <form class="create-room__card" [formGroup]="form">
+    <h1 class="create-room__title">Create a room</h1>
+    <p class="create-room__subtitle">Start a shared watch session</p>
+
+    <div class="create-room__field">
+      <input
+        class="create-room__input"
+        formControlName="name"
+        placeholder="Room name"
+        type="text"
+      />
+      <div class="create-room__error">
+        @if (form.controls.name.touched) {
+          @if (form.controls.name.errors?.['required']) {
+            <span>Room name is required</span>
+          }
+          @if (form.controls.name.errors?.['minlength']) {
+            <span>Minimum 3 characters</span>
+          }
+          @if (form.controls.name.errors?.['maxlength']) {
+            <span>Maximum 60 characters</span>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="create-room__field">
+      <textarea
+        class="create-room__input create-room__input--area"
+        formControlName="description"
+        placeholder="Description (optional)"
+        rows="3"
+      ></textarea>
+      <div class="create-room__error">
+        @if (form.controls.description.touched && form.controls.description.errors?.['maxlength']) {
+          <span>Maximum 300 characters</span>
+        }
+      </div>
+    </div>
+
+    <div class="create-room__field">
+      <input
+        class="create-room__input"
+        formControlName="coverUrl"
+        placeholder="Cover image URL (optional)"
+        type="url"
+      />
+      <div class="create-room__error">
+        @if (form.controls.coverUrl.touched && form.controls.coverUrl.errors?.['pattern']) {
+          <span>Must be a valid http(s) URL</span>
+        }
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="create-room__submit-error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button
+      class="create-room__submit"
+      type="button"
+      [disabled]="form.invalid || submitting()"
+      (click)="create()"
+    >
+      {{ submitting() ? 'Creating...' : 'Create room' }}
+    </button>
+
+    <a class="create-room__back" routerLink="/">Back to rooms</a>
+  </form>
+</div>
