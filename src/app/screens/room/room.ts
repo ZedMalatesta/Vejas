@@ -55,14 +55,26 @@ export class Room implements OnInit, OnDestroy {
         : 0;
       const targetTime = playback.currentTime + elapsed;
 
-      this.lastRemoteApplyAt = Date.now();
-      if (shouldSeek(player.currentTime(), targetTime)) {
-        player.seekTo(targetTime);
-      }
+      // Only touch the player when reality differs from the target.
+      // Blind pause() on a freshly cued (never started) player throws
+      // YouTube into an "unstarted+paused" black screen.
+      let applied = false;
       if (playback.isPlaying) {
-        player.play();
-      } else {
+        if (shouldSeek(player.currentTime(), targetTime)) {
+          player.seekTo(targetTime);
+          applied = true;
+        }
+        if (!player.isPlaying()) {
+          player.play();
+          applied = true;
+        }
+      } else if (player.isPlaying()) {
         player.pause();
+        applied = true;
+      }
+
+      if (applied) {
+        this.lastRemoteApplyAt = Date.now();
       }
     });
 
