@@ -13,6 +13,8 @@ describe('AuthButton', () => {
 
     fixture = TestBed.createComponent(AuthButton);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('text', 'Sign in');
+    fixture.componentRef.setInput('icon', 'login');
     await fixture.whenStable();
   });
 

@@ -1,27 +1,26 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {AuthService} from '../../../core/services/auth.service';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
-import {AuthButton} from '../../../shared/ui/auth-button/auth-button';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, AuthButton],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: '../shared/auth.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login implements OnInit, OnDestroy {
-  authService = inject(AuthService);
-  errorMessage = '';
-  private fb = inject(FormBuilder);
-  form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+export class Login {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
+  readonly errorMessage = signal('');
+
+  readonly form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
-  private router = inject(Router);
 
   async login(): Promise<void> {
     if (this.form.invalid) {
@@ -32,29 +31,17 @@ export class Login implements OnInit, OnDestroy {
     const email = this.form.value.email!;
     const password = this.form.value.password!;
 
-    const {error} = await this.authService.signIn(email, password);
-
-    if (error) {
-      this.errorMessage = error.message;
+    try {
+      const { error } = await this.authService.signIn(email, password);
+      if (error) {
+        this.errorMessage.set(error.message);
+        return;
+      }
+    } catch {
+      this.errorMessage.set('Authentication service is unreachable');
       return;
     }
 
     await this.router.navigate(['/']);
-  }
-
-  loginGoogle(): void {
-    this.authService.signInWithGoogle();
-  }
-
-  loginGithub(): void {
-    this.authService.signInWithGithub();
-  }
-
-  ngOnInit(): void {
-    console.log('Login init');
-  }
-
-  ngOnDestroy(): void {
-    console.log('Login destroy');
   }
 }

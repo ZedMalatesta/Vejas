@@ -62,6 +62,12 @@
 
     </div>
 
+    @if (errorMessage()) {
+      <p class="auth__error auth__error--submit" role="alert">
+        {{ errorMessage() }}
+      </p>
+    }
+
     <button
       (click)="login()"
       [disabled]="form.invalid"
@@ -70,24 +76,6 @@
     >
       Sign in
     </button>
-
-    <hr class="auth__divider">
-
-    <div class="auth__providers">
-
-      <app-auth-button
-        (clicked)="loginGoogle()"
-        icon="icons/google.svg"
-        text="Continue with Google"
-      />
-
-      <app-auth-button
-        (clicked)="loginGithub()"
-        icon="icons/github.svg"
-        text="Continue with GitHub"
-      />
-
-    </div>
 
     <div class="auth__links">
 

@@ -2,17 +2,18 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface);
   overflow: hidden;
 
   &__header {
     padding: 0.75rem 1rem;
     font-weight: 600;
     font-size: 0.875rem;
-    border-bottom: 1px solid var(--border-color, #e2e8f0);
-    background: var(--surface-color, #f8fafc);
-    color: #000;
+    border-bottom: 1px solid var(--app-border);
+    background: var(--app-surface-2);
+    color: var(--app-text-strong);
   }
 
   &__messages {
@@ -39,50 +40,62 @@
   &__author {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--primary-color, #6366f1);
+    color: var(--app-accent);
   }
 
   &__time {
     font-size: 0.625rem;
-    color: var(--muted-color, #94a3b8);
+    color: var(--app-muted);
   }
 
   &__text {
     font-size: 0.875rem;
     line-height: 1.4;
     word-break: break-word;
+    color: var(--app-text);
   }
 
   &__form {
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem;
-    border-top: 1px solid var(--border-color, #e2e8f0);
+    border-top: 1px solid var(--app-border);
   }
 
   &__input {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 6px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--app-radius-sm);
     font-size: 0.875rem;
-    background: var(--input-bg, #fff);
-    color: inherit;
+    background: var(--app-bg-elevated);
+    color: var(--app-text);
     outline: none;
 
+    &::placeholder {
+      color: var(--app-muted);
+    }
+
     &:focus {
-      border-color: var(--primary-color, #6366f1);
+      border-color: var(--app-accent);
+      box-shadow: var(--app-focus-ring);
     }
   }
 
   &__send {
     padding: 0.5rem 1rem;
-    background: var(--primary-color, #6366f1);
-    color: #fff;
+    background: var(--app-accent);
+    color: var(--app-bg);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--app-radius-sm);
     font-size: 0.875rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: background var(--app-transition-fast);
+
+    &:hover:not(:disabled) {
+      background: var(--app-accent-hover);
+    }
 
     &:disabled {
       opacity: 0.5;

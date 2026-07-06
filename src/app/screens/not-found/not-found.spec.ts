@@ -1,24 +1,33 @@
-import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
 import { NotFound } from './not-found';
 
 describe('NotFound', () => {
+  let fixture: ComponentFixture<NotFound>;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotFound, RouterTestingModule],
+      imports: [NotFound],
+      providers: [provideRouter([])],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(NotFound);
+    await fixture.whenStable();
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(NotFound);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should display 404 and a link back home', () => {
-    const fixture = TestBed.createComponent(NotFound);
-    fixture.detectChanges();
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('404');
-    expect(el.querySelector('a[routerLink="/"]')).toBeTruthy();
+  it('shows a meaningful 404 message', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('404');
+    expect(text.toLowerCase()).toContain('not found');
+  });
+
+  it('offers a link back to the home page', () => {
+    const link = (fixture.nativeElement as HTMLElement).querySelector('a[href="/"]');
+    expect(link).toBeTruthy();
   });
 });

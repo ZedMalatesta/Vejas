@@ -1,7 +1,22 @@
 <div class="player-wrapper">
-  <youtube-player
-    [videoId]="videoId()"
-    [playerVars]="playerVars"
-    (stateChange)="onStateChange($event)"
-  />
+  <div class="player-host">
+    <div #host></div>
+  </div>
+  @if (!canControl()) {
+    <div class="player-shield" aria-hidden="true"></div>
+  }
+  @if (muted() && ready()) {
+    <button class="player-unmute" type="button" (click)="unmute()">
+      🔊 Tap for sound
+    </button>
+  }
+  @if (!videoId()) {
+    <div class="player-placeholder">
+      <p>No video playing yet</p>
+    </div>
+  } @else if (playerError()) {
+    <div class="player-placeholder player-placeholder--error" role="alert">
+      <p>{{ playerError() }}</p>
+    </div>
+  }
 </div>

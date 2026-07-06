@@ -1,0 +1,14 @@
+<a class="room-card" [routerLink]="['/room', room().id]">
+  <div class="room-card__media">
+    <img class="room-card__cover" [src]="coverUrl()" [alt]="room().name + ' cover'" />
+    <p class="room-card__admin">{{ room().adminName }}</p>
+  </div>
+
+  <div class="room-card__content">
+    <h3 class="room-card__name">{{ room().name }}</h3>
+    <p class="room-card__description">{{ room().description }}</p>
+    <footer class="room-card__footer">
+      <span class="room-card__viewers">{{ room().viewersCount | viewers }}</span>
+    </footer>
+  </div>
+</a>

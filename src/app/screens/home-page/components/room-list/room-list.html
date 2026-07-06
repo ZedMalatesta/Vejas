@@ -1,0 +1,37 @@
+<section class="room-list">
+  <header class="room-list__header">
+    <p class="room-list__eyebrow">Live now</p>
+    <div class="room-list__title-row">
+      <h2 class="room-list__title">Rooms</h2>
+      @if (user()) {
+        <a class="room-list__create" routerLink="/rooms/new">+ Create room</a>
+      }
+    </div>
+    <input
+      class="room-list__search"
+      type="search"
+      placeholder="Search rooms..."
+      [formControl]="searchControl"
+    />
+  </header>
+
+  @if (loading()) {
+    <div class="room-list__state" role="status">
+      <span class="room-list__spinner" aria-hidden="true"></span>
+      Loading rooms...
+    </div>
+  } @else if (error()) {
+    <div class="room-list__state room-list__state--error" role="alert">
+      <p>Could not load rooms. Check your connection and try again.</p>
+      <button class="room-list__retry" type="button" (click)="retry()">Retry</button>
+    </div>
+  } @else if (rooms().length === 0) {
+    <div class="room-list__state">No rooms yet. Be the first to create one!</div>
+  } @else {
+    <div class="room-list__grid" role="list">
+      @for (room of rooms(); track room.id) {
+        <app-room-card [room]="room" />
+      }
+    </div>
+  }
+</section>
