@@ -1,7 +1,10 @@
 <div class="player-wrapper">
-  <iframe
-    [src]="embedUrl()"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen
-  ></iframe>
+  <div class="player-host">
+    <div #host></div>
+  </div>
+  @if (!videoId()) {
+    <div class="player-placeholder">
+      <p>No video playing yet</p>
+    </div>
+  }
 </div>
