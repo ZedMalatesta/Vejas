@@ -1,14 +1,15 @@
 .playlist {
-  border: 1px solid #3a3b3f;
-  border-radius: 6px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface);
   overflow: hidden;
 }
 
 .playlist__header {
   padding: 0.5rem 0.9rem;
-  background: #2a2b2f;
+  background: var(--app-surface-2);
   font-size: 0.8rem;
-  color: #6e7681;
+  color: var(--app-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -16,7 +17,7 @@
 
 .playlist__empty {
   padding: 1rem 0.9rem;
-  color: #6e7681;
+  color: var(--app-muted);
   font-size: 0.85rem;
 }
 
@@ -26,29 +27,29 @@
   gap: 0.6rem;
   padding: 0.5rem 0.9rem;
   cursor: pointer;
-  border-top: 1px solid #3a3b3f;
-  transition: background 0.1s;
+  border-top: 1px solid var(--app-border);
+  transition: background var(--app-transition-fast);
 
   &:hover {
-    background: #2a2b2f;
+    background: var(--app-muted-bg);
   }
 
   &--active {
-    background: #1f2937;
-    border-left: 2px solid #58a6ff;
+    background: var(--app-accent-soft);
+    border-left: 2px solid var(--app-accent);
   }
 }
 
 .playlist__index {
   font-size: 0.75rem;
-  color: #6e7681;
+  color: var(--app-muted);
   min-width: 1.2rem;
 }
 
 .playlist__url {
   flex: 1;
   font-size: 0.85rem;
-  color: #c9d1d9;
+  color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -57,13 +58,13 @@
 .playlist__remove {
   background: none;
   border: none;
-  color: #6e7681;
+  color: var(--app-muted);
   cursor: pointer;
   font-size: 0.75rem;
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--app-radius-sm);
   line-height: 1;
-  transition: color 0.1s, background 0.1s;
+  transition: color var(--app-transition-fast), background var(--app-transition-fast);
   flex-shrink: 0;
 
   &:hover {
