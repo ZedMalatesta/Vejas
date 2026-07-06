@@ -15,6 +15,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./screens/profile/profile').then((m) => m.Profile),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rooms/new',
     loadComponent: () => import('./screens/create-room/create-room').then((m) => m.CreateRoom),
     canActivate: [authGuard],

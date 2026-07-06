@@ -13,7 +13,7 @@
     }
   </div>
 
-  <form class="chat__form" (ngSubmit)="onSubmit()">
+  <form class="chat__form" (submit)="onSubmit($event)">
     <input
       class="chat__input"
       type="text"

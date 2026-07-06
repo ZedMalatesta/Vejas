@@ -9,12 +9,16 @@ interface Handler {
 
 const { fakeSocket } = vi.hoisted(() => {
   const handlers = new Map<string, Handler[]>();
+  const anyHandlers: ((event: string, payload: unknown) => void)[] = [];
   const fakeSocket = {
     connected: false,
     emit: vi.fn(),
     disconnect: vi.fn(),
     on: vi.fn((event: string, cb: Handler) => {
       handlers.set(event, [...(handlers.get(event) ?? []), cb]);
+    }),
+    onAny: vi.fn((cb: (event: string, payload: unknown) => void) => {
+      anyHandlers.push(cb);
     }),
     off: vi.fn((event: string, cb?: Handler) => {
       if (!cb) {
@@ -25,8 +29,10 @@ const { fakeSocket } = vi.hoisted(() => {
     }),
     trigger(event: string, payload: unknown): void {
       for (const cb of handlers.get(event) ?? []) cb(payload);
+      for (const cb of anyHandlers) cb(event, payload);
     },
     handlers,
+    anyHandlers,
   };
   return { fakeSocket };
 });
@@ -45,6 +51,7 @@ describe('SocketService', () => {
     service = TestBed.inject(SocketService);
     vi.clearAllMocks();
     fakeSocket.handlers.clear();
+    fakeSocket.anyHandlers.length = 0;
   });
 
   it('connects to the configured socket URL passing the auth token', () => {
@@ -92,6 +99,16 @@ describe('SocketService', () => {
     sub.unsubscribe();
     fakeSocket.trigger('chatMessage', { text: 'after unsubscribe' });
     expect(received).toHaveLength(1);
+  });
+
+  it('delivers events to subscriptions made before connect()', () => {
+    const received: unknown[] = [];
+    service.on<{ text: string }>('chatMessage').subscribe((m) => received.push(m));
+
+    service.connect('token-123');
+    fakeSocket.trigger('chatMessage', { text: 'early bird' });
+
+    expect(received).toEqual([{ text: 'early bird' }]);
   });
 
   it('tears the socket down on disconnect()', () => {

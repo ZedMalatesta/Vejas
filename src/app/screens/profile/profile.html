@@ -1,0 +1,110 @@
+<app-header />
+
+<div class="profile">
+  <!-- Block 1: personal data -->
+  <section class="profile__card" aria-label="Personal data">
+    @if (profileError()) {
+      <p class="profile__error" role="alert">Could not load your profile.</p>
+    } @else {
+      @if (profile()?.avatarUrl) {
+        <img class="profile__avatar-img" [src]="profile()!.avatarUrl" alt="Your avatar" />
+      } @else {
+        <div class="profile__avatar" aria-hidden="true">
+          {{ displayName().charAt(0).toUpperCase() }}
+        </div>
+      }
+
+      <h1 class="profile__title">{{ displayName() }}</h1>
+      <p class="profile__login">{{ profile()?.login }}</p>
+
+      <form class="profile__form" [formGroup]="form">
+        <label class="profile__label" for="nickname">Nickname</label>
+        <input
+          id="nickname"
+          class="profile__input"
+          formControlName="nickname"
+          placeholder="How others see you"
+          type="text"
+        />
+        <div class="profile__field-error">
+          @if (form.controls.nickname.touched) {
+            @if (form.controls.nickname.errors?.['minlength']) {
+              <span>Minimum 2 characters</span>
+            }
+            @if (form.controls.nickname.errors?.['maxlength']) {
+              <span>Maximum 30 characters</span>
+            }
+          }
+        </div>
+
+        <label class="profile__label" for="avatarUrl">Avatar URL</label>
+        <input
+          id="avatarUrl"
+          class="profile__input"
+          formControlName="avatarUrl"
+          placeholder="https://..."
+          type="url"
+        />
+        <div class="profile__field-error">
+          @if (form.controls.avatarUrl.touched && form.controls.avatarUrl.errors?.['pattern']) {
+            <span>Must be a valid http(s) URL</span>
+          }
+        </div>
+
+        @if (saveMessage()) {
+          <p class="profile__saved" role="status">{{ saveMessage() }}</p>
+        }
+        @if (saveError()) {
+          <p class="profile__error" role="alert">{{ saveError() }}</p>
+        }
+
+        <button
+          class="profile__save"
+          type="button"
+          [disabled]="form.invalid || saving()"
+          (click)="save()"
+        >
+          {{ saving() ? 'Saving...' : 'Save changes' }}
+        </button>
+      </form>
+    }
+  </section>
+
+  <!-- Block 2: my rooms -->
+  <section class="profile__card profile__card--rooms" aria-label="My rooms">
+    <div class="profile__rooms-header">
+      <h2 class="profile__subtitle">My rooms</h2>
+      <a class="profile__create" routerLink="/rooms/new">+ New room</a>
+    </div>
+
+    @if (roomsLoading()) {
+      <p class="profile__muted" role="status">Loading your rooms...</p>
+    } @else if (roomsError()) {
+      <div class="profile__error" role="alert">
+        <p>Could not load your rooms.</p>
+        <button class="profile__retry" type="button" (click)="retryRooms()">Retry</button>
+      </div>
+    } @else if (rooms().length === 0) {
+      <p class="profile__muted">You have no rooms yet. Create your first one!</p>
+    } @else {
+      <ul class="profile__rooms">
+        @for (room of rooms(); track room.id) {
+          <li class="profile__room">
+            <a class="profile__room-link" [routerLink]="['/room', room.id]">
+              <span class="profile__room-name">{{ room.name }}</span>
+              <span class="profile__room-viewers">{{ room.viewersCount | viewers }}</span>
+            </a>
+            <button
+              class="profile__room-delete"
+              type="button"
+              (click)="deleteRoom(room)"
+              [attr.aria-label]="'Delete room ' + room.name"
+            >✕</button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
+
+<app-footer />

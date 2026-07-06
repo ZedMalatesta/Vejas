@@ -1,0 +1,230 @@
+.profile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 760px) {
+  .profile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+
+  &--rooms {
+    align-items: stretch;
+  }
+}
+
+.profile__avatar,
+.profile__avatar-img {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+}
+
+.profile__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-accent);
+  color: var(--app-bg);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile__avatar-img {
+  object-fit: cover;
+}
+
+.profile__title {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 1.4rem;
+}
+
+.profile__login {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.profile__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.profile__label {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile__input {
+  padding: 0.55rem 0.75rem;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  color: var(--app-text);
+  font-size: 0.95rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.profile__field-error {
+  min-height: 1.1rem;
+  color: #e5484d;
+  font-size: 0.75rem;
+  padding-top: 0.15rem;
+}
+
+.profile__saved {
+  margin: 0 0 0.5rem;
+  color: #30a46c;
+  font-size: 0.85rem;
+}
+
+.profile__error {
+  margin: 0;
+  color: #e5484d;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.profile__save {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: var(--app-accent);
+  color: var(--app-bg);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.profile__rooms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.profile__subtitle {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 1.2rem;
+}
+
+.profile__create {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--app-radius-md);
+  background: var(--app-accent);
+  color: var(--app-bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.profile__muted {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.profile__retry {
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text);
+  cursor: pointer;
+}
+
+.profile__rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile__room {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+
+  &:hover {
+    border-color: var(--app-accent);
+  }
+}
+
+.profile__room-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.profile__room-name {
+  color: var(--app-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile__room-viewers {
+  color: var(--app-accent);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.profile__room-delete {
+  padding: 0.2rem 0.5rem;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    color: #e5484d;
+  }
+}

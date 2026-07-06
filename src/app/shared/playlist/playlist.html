@@ -9,14 +9,16 @@
       appScrollIntoView
       [isActive]="i === currentIndex()"
       [class.playlist__item--active]="i === currentIndex()"
-      (click)="select.emit(i)"
+      (click)="canEdit() && select.emit(i)"
     >
       <span class="playlist__index">{{ i + 1 }}</span>
       <span class="playlist__url">{{ item.url }}</span>
-      <button
-        class="playlist__remove"
-        (click)="remove.emit(item.id)"
-      >✕</button>
+      @if (canEdit()) {
+        <button
+          class="playlist__remove"
+          (click)="remove.emit(item.id); $event.stopPropagation()"
+        >✕</button>
+      }
     </div>
   }
 </div>

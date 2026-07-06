@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { YOUTUBE_PLAYER_CONFIG } from './youtube-player-config.token';
-import { loadYouTubeApi, YtPlayer } from './youtube-api';
+import { describeYtError, loadYouTubeApi, YtPlayer } from './youtube-api';
 
 export interface PlayerStateChange {
   isPlaying: boolean;
@@ -34,6 +34,7 @@ export class VideoPlayer implements OnDestroy {
   readonly stateChange = output<PlayerStateChange>();
 
   readonly ready = signal(false);
+  readonly playerError = signal('');
 
   private readonly host = viewChild<ElementRef<HTMLElement>>('host');
   private player: YtPlayer | null = null;
@@ -73,6 +74,8 @@ export class VideoPlayer implements OnDestroy {
   }
 
   private async showVideo(videoId: string, hostElement: HTMLElement): Promise<void> {
+    this.playerError.set('');
+
     if (this.player) {
       this.player.loadVideoById(videoId);
       return;
@@ -84,7 +87,9 @@ export class VideoPlayer implements OnDestroy {
     this.player = new yt.Player(hostElement, {
       videoId,
       playerVars: {
-        autoplay: this.config.autoplay,
+        // Never autoplay: the admin starts playback with a real click
+        // (browser gesture), viewers are driven by the sync effect.
+        autoplay: 0,
         controls: this.isAdmin() ? this.config.controls : 0,
         rel: this.config.rel,
         modestbranding: this.config.modestbranding,
@@ -109,6 +114,9 @@ export class VideoPlayer implements OnDestroy {
           ) {
             this.stateChange.emit({ isPlaying: false, currentTime: this.currentTime() });
           }
+        },
+        onError: (event) => {
+          this.playerError.set(describeYtError(event.data));
         },
       },
     });

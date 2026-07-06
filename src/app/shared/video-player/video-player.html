@@ -6,5 +6,9 @@
     <div class="player-placeholder">
       <p>No video playing yet</p>
     </div>
+  } @else if (playerError()) {
+    <div class="player-placeholder player-placeholder--error" role="alert">
+      <p>{{ playerError() }}</p>
+    </div>
   }
 </div>

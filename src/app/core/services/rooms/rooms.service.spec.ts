@@ -51,6 +51,14 @@ describe('RoomsService', () => {
     req.flush([]);
   });
 
+  it('fetches rooms of one admin with an adminId param', () => {
+    service.getRoomsByAdmin('user-1').subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/rooms?adminId=user-1`);
+    expect(req.request.params.get('adminId')).toBe('user-1');
+    req.flush([]);
+  });
+
   it('fetches a single room by id', () => {
     service.getRoom('room-1').subscribe();
 

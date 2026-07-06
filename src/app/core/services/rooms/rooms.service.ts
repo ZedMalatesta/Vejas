@@ -14,6 +14,11 @@ export class RoomsService {
     return this.http.get<Room[]>(this.baseUrl, { params });
   }
 
+  getRoomsByAdmin(adminId: string): Observable<Room[]> {
+    const params = new HttpParams().set('adminId', adminId);
+    return this.http.get<Room[]>(this.baseUrl, { params });
+  }
+
   getRoom(id: string): Observable<RoomWithState> {
     return this.http.get<RoomWithState>(`${this.baseUrl}/${id}`);
   }
