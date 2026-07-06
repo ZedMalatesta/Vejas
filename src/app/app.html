@@ -1,1 +1,8 @@
+@if (error.message()) {
+  <div class="error-banner" role="alert">
+    <span>{{ error.message() }}</span>
+    <button class="error-banner__close" (click)="error.dismiss()">✕</button>
+  </div>
+}
+
 <router-outlet />

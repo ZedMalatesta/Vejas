@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './core/services/theme/theme.service';
+import { ErrorNotificationService } from './core/services/error-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,6 @@ import { ThemeService } from './core/services/theme/theme.service';
 })
 export class App {
   protected readonly title = signal('vejas-frontend');
-  // Injecting the service
   private readonly theme = inject(ThemeService);
+  protected readonly error = inject(ErrorNotificationService);
 }

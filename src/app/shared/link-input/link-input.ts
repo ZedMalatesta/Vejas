@@ -1,5 +1,12 @@
-import { Component, output } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { Component, output, ChangeDetectionStrategy } from '@angular/core';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { TextInput } from '../text-input/text-input';
 import { Button } from '../button/button';
 import { extractVideoId } from '../../utils/extract-video-id';
@@ -13,6 +20,7 @@ function youtubeUrlValidator(control: AbstractControl): ValidationErrors | null 
   selector: 'app-link-input',
   imports: [TextInput, Button, ReactiveFormsModule],
   templateUrl: './link-input.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './link-input.scss',
 })
 export class LinkInput {
