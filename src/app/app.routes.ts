@@ -30,5 +30,8 @@ export const routes: Routes = [
     component: ChangePassword,
     canDeactivate: [unsavedChangesGuard],
   },
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    loadComponent: () => import('./screens/not-found/not-found').then((m) => m.NotFound),
+  },
 ];

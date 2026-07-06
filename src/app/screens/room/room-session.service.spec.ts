@@ -63,7 +63,7 @@ describe('RoomSessionService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: SocketService, useValue: socketMock },
-        { provide: AuthService, useValue: { user: currentUser } },
+        { provide: AuthService, useValue: { user: currentUser, accessToken: () => 'test-token' } },
       ],
     });
 

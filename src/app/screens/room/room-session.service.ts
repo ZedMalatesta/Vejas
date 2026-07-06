@@ -1,13 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- TDD skeleton, remove with implementation */
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../core/services/auth.service';
+import { RoomsService } from '../../core/services/rooms/rooms.service';
+import { SocketService } from '../../core/services/socket/socket.service';
 import {
   PlaybackState,
   PlaylistItemDto,
   RoomChatMessage,
+  RoomState,
   RoomWithState,
 } from '../../models/room.model';
+import { extractVideoId } from '../../utils/extract-video-id';
 
 export type RoomSessionError = 'not-found' | 'failed' | null;
+
+interface PlaylistUpdate {
+  playlist: PlaylistItemDto[];
+  currentIndex: number;
+}
 
 /**
  * Holds all realtime state of one room screen: HTTP snapshot + socket sync.
@@ -15,6 +26,10 @@ export type RoomSessionError = 'not-found' | 'failed' | null;
  */
 @Injectable()
 export class RoomSessionService {
+  private readonly roomsService = inject(RoomsService);
+  private readonly socket = inject(SocketService);
+  private readonly auth = inject(AuthService);
+
   readonly room = signal<RoomWithState | null>(null);
   readonly loading = signal(true);
   readonly error = signal<RoomSessionError>(null);
@@ -33,33 +48,116 @@ export class RoomSessionService {
     () => this.playlist()[this.currentIndex()]?.videoId ?? ''
   );
 
-  readonly isAdmin = computed(() => false); // TODO(TDD): implement
+  readonly isAdmin = computed(() => {
+    const room = this.room();
+    const user = this.auth.user();
+    return !!room && !!user && room.adminId === user.id;
+  });
 
-  load(_roomId: string): void {
-    // TODO(TDD): implement — HTTP fetch + socket join + subscriptions
+  private roomId = '';
+
+  constructor() {
+    this.socket
+      .on<RoomChatMessage>('chatMessage')
+      .pipe(takeUntilDestroyed())
+      .subscribe((message) => this.messages.update((list) => [...list, message]));
+
+    this.socket
+      .on<Pick<PlaybackState, 'isPlaying' | 'currentTime'>>('playbackUpdate')
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ isPlaying, currentTime }) =>
+        this.playback.set({
+          isPlaying,
+          currentTime,
+          updatedAt: new Date().toISOString(),
+        })
+      );
+
+    this.socket
+      .on<PlaylistUpdate>('playlistUpdate')
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ playlist, currentIndex }) => {
+        this.playlist.set(playlist);
+        this.currentIndex.set(currentIndex);
+      });
+
+    this.socket
+      .on<{ count: number }>('viewersCount')
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ count }) => this.viewersCount.set(count));
+
+    this.socket
+      .on<RoomWithState>('roomState')
+      .pipe(takeUntilDestroyed())
+      .subscribe((room) => this.applySnapshot(room));
+  }
+
+  load(roomId: string): void {
+    this.roomId = roomId;
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.roomsService.getRoom(roomId).subscribe({
+      next: (room) => {
+        this.applySnapshot(room);
+        this.loading.set(false);
+
+        this.socket.connect(this.auth.accessToken?.() ?? '');
+        this.socket.joinRoom(roomId);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading.set(false);
+        this.error.set(err.status === 404 ? 'not-found' : 'failed');
+      },
+    });
   }
 
   leave(): void {
-    // TODO(TDD): implement
+    this.socket.emit('leaveRoom', { roomId: this.roomId });
   }
 
-  sendMessage(_text: string): void {
-    // TODO(TDD): implement
+  sendMessage(text: string): void {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    this.socket.emit('chatMessage', { roomId: this.roomId, text: trimmed });
   }
 
-  addToPlaylist(_url: string): void {
-    // TODO(TDD): implement (admin only)
+  addToPlaylist(url: string): void {
+    if (!this.isAdmin()) return;
+    const videoId = extractVideoId(url);
+    if (!videoId) return;
+    this.socket.emit('playlistAdd', { roomId: this.roomId, videoId, url });
   }
 
-  selectVideo(_index: number): void {
-    // TODO(TDD): implement (admin only)
+  selectVideo(index: number): void {
+    if (!this.isAdmin()) return;
+    this.socket.emit('playlistSelect', { roomId: this.roomId, index });
   }
 
-  removeFromPlaylist(_itemId: string): void {
-    // TODO(TDD): implement (admin only)
+  removeFromPlaylist(itemId: string): void {
+    if (!this.isAdmin()) return;
+    this.socket.emit('playlistRemove', { roomId: this.roomId, id: itemId });
   }
 
-  updatePlayback(_isPlaying: boolean, _currentTime: number): void {
-    // TODO(TDD): implement (admin only)
+  updatePlayback(isPlaying: boolean, currentTime: number): void {
+    if (!this.isAdmin()) return;
+    this.socket.emit('playbackUpdate', {
+      roomId: this.roomId,
+      isPlaying,
+      currentTime,
+    });
+  }
+
+  private applySnapshot(room: RoomWithState): void {
+    this.room.set(room);
+    this.applyState(room.state);
+    this.viewersCount.set(room.viewersCount);
+  }
+
+  private applyState(state: RoomState): void {
+    this.playlist.set(state.playlist);
+    this.currentIndex.set(state.currentIndex);
+    this.playback.set(state.playback);
+    this.messages.set(state.messages);
   }
 }
