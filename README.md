@@ -4,6 +4,8 @@ An application that allows users to connect on a platform to synchronize their s
 
 **Live:** [https://zedmalatesta.github.io/Vejas-frontend/](https://zedmalatesta.github.io/Vejas-frontend/)
 
+**Demo video:** [Watch demo](https://zedmalatesta.github.io/Vejas-frontend/assets/demo.mp4)
+
 ## Collaborators
 
 - [@ZedMalatesta](https://github.com/ZedMalatesta)
