@@ -34,7 +34,7 @@
       <div class="room__main">
         <app-video-player
           [videoId]="session.currentVideoId()"
-          [isAdmin]="session.isAdmin()"
+          [canControl]="session.canControl()"
           (stateChange)="onPlayerState($event)"
         />
         @if (session.isAdmin()) {

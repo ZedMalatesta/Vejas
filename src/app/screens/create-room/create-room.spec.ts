@@ -51,12 +51,12 @@ describe('CreateRoom', () => {
   it('posts the room and navigates to it on success', async () => {
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    component.form.setValue({ name: 'Movie night', description: '', coverUrl: '' });
+    component.form.setValue({ name: 'Movie night', description: '', coverUrl: '', allowGuestControl: false });
     component.create();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/rooms`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ name: 'Movie night' });
+    expect(req.request.body).toEqual({ name: 'Movie night', allowGuestControl: false });
     req.flush({ id: 'room-9', name: 'Movie night' });
     await fixture.whenStable();
 
@@ -64,7 +64,7 @@ describe('CreateRoom', () => {
   });
 
   it('shows a server error message and re-enables the form on failure', async () => {
-    component.form.setValue({ name: 'Movie night', description: '', coverUrl: '' });
+    component.form.setValue({ name: 'Movie night', description: '', coverUrl: '', allowGuestControl: false });
     component.create();
 
     httpMock

@@ -12,6 +12,7 @@ const ROOM: Room = {
   coverUrl: null,
   adminId: 'user-1',
   adminName: 'Alex',
+  allowGuestControl: false,
   createdAt: '2026-07-05T10:00:00.000Z',
   viewersCount: 3,
 };

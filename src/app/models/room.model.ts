@@ -32,6 +32,8 @@ export interface Room {
   coverUrl: string | null;
   adminId: string;
   adminName: string;
+  /** When true, any member may control playback (play/pause/seek). */
+  allowGuestControl: boolean;
   createdAt: string;
   viewersCount: number;
 }
@@ -44,4 +46,5 @@ export interface CreateRoomRequest {
   name: string;
   description?: string;
   coverUrl?: string;
+  allowGuestControl?: boolean;
 }

@@ -53,6 +53,14 @@
       </div>
     </div>
 
+    <label class="create-room__checkbox">
+      <input formControlName="allowGuestControl" type="checkbox" />
+      <span>
+        Allow viewers to control playback
+        <small>When off, only you (the host) can start, pause and seek the stream</small>
+      </span>
+    </label>
+
     @if (errorMessage()) {
       <p class="create-room__submit-error" role="alert">{{ errorMessage() }}</p>
     }

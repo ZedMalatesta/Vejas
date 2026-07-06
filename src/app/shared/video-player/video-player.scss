@@ -35,3 +35,11 @@
     color: #e5484d;
   }
 }
+
+// Blocks clicks for passive viewers so they cannot start/pause their
+// local player and drift out of sync with the host.
+.player-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}

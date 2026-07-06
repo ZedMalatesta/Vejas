@@ -16,6 +16,7 @@ const ROOM: RoomWithState = {
   coverUrl: null,
   adminId: 'admin-1',
   adminName: 'Alex',
+  allowGuestControl: false,
   createdAt: '2026-07-05T10:00:00.000Z',
   viewersCount: 1,
   state: {
@@ -170,6 +171,31 @@ describe('RoomSessionService', () => {
       loadRoom();
 
       expect(service.isAdmin()).toBe(false);
+    });
+  });
+
+  describe('guest control', () => {
+    const GUEST_ROOM = { ...ROOM, id: 'room-2', allowGuestControl: true };
+
+    it('lets any member control playback when the room allows it', () => {
+      loadRoom(GUEST_ROOM);
+
+      service.updatePlayback(true, 10);
+
+      expect(socketMock.emit).toHaveBeenCalledWith('playbackUpdate', {
+        roomId: 'room-2',
+        isPlaying: true,
+        currentTime: 10,
+      });
+    });
+
+    it('still keeps the playlist admin-only in guest-control rooms', () => {
+      loadRoom(GUEST_ROOM);
+
+      service.addToPlaylist('https://youtu.be/abcdefghijk');
+      service.selectVideo(0);
+
+      expect(socketMock.emit).not.toHaveBeenCalled();
     });
   });
 

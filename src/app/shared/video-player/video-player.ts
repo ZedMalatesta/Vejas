@@ -28,8 +28,8 @@ export class VideoPlayer implements OnDestroy {
   private readonly config = inject(YOUTUBE_PLAYER_CONFIG);
 
   readonly videoId = input.required<string>();
-  /** Admins control playback; viewers get a muted, sync-driven player. */
-  readonly isAdmin = input(false);
+  /** Controllers drive playback; passive viewers get a muted, sync-driven player. */
+  readonly canControl = input(false);
 
   readonly stateChange = output<PlayerStateChange>();
 
@@ -90,7 +90,7 @@ export class VideoPlayer implements OnDestroy {
         // Never autoplay: the admin starts playback with a real click
         // (browser gesture), viewers are driven by the sync effect.
         autoplay: 0,
-        controls: this.isAdmin() ? this.config.controls : 0,
+        controls: this.canControl() ? this.config.controls : 0,
         rel: this.config.rel,
         modestbranding: this.config.modestbranding,
         fs: this.config.fs,
@@ -101,11 +101,11 @@ export class VideoPlayer implements OnDestroy {
         onReady: () => {
           // Muted playback keeps browser autoplay policies from blocking
           // the sync-driven start for viewers.
-          if (!this.isAdmin()) this.player?.mute();
+          if (!this.canControl()) this.player?.mute();
           this.ready.set(true);
         },
         onStateChange: (event) => {
-          if (!this.isAdmin() || !this.player) return;
+          if (!this.canControl() || !this.player) return;
           if (event.data === yt.PlayerState.PLAYING) {
             this.stateChange.emit({ isPlaying: true, currentTime: this.currentTime() });
           } else if (

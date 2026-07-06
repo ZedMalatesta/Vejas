@@ -57,6 +57,26 @@
   }
 }
 
+.create-room__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  input {
+    margin-top: 0.2rem;
+    accent-color: var(--app-accent);
+  }
+
+  small {
+    display: block;
+    color: var(--app-muted);
+    font-size: 0.75rem;
+  }
+}
+
 .create-room__error {
   min-height: 1rem;
   color: #e5484d;

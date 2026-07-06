@@ -2,6 +2,9 @@
   <div class="player-host">
     <div #host></div>
   </div>
+  @if (!canControl()) {
+    <div class="player-shield" aria-hidden="true"></div>
+  }
   @if (!videoId()) {
     <div class="player-placeholder">
       <p>No video playing yet</p>

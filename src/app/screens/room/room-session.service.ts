@@ -54,6 +54,11 @@ export class RoomSessionService {
     return !!room && !!user && room.adminId === user.id;
   });
 
+  /** Playback control: the admin always, everyone if the room allows it. */
+  readonly canControl = computed(
+    () => this.isAdmin() || !!this.room()?.allowGuestControl
+  );
+
   private roomId = '';
 
   constructor() {
@@ -140,7 +145,7 @@ export class RoomSessionService {
   }
 
   updatePlayback(isPlaying: boolean, currentTime: number): void {
-    if (!this.isAdmin()) return;
+    if (!this.canControl()) return;
     this.socket.emit('playbackUpdate', {
       roomId: this.roomId,
       isPlaying,

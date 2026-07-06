@@ -25,6 +25,7 @@ export class CreateRoom {
     name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(60)]],
     description: ['', [Validators.maxLength(300)]],
     coverUrl: ['', [Validators.pattern(URL_PATTERN)]],
+    allowGuestControl: [false],
   });
 
   create(): void {
@@ -33,11 +34,12 @@ export class CreateRoom {
       return;
     }
 
-    const { name, description, coverUrl } = this.form.getRawValue();
+    const { name, description, coverUrl, allowGuestControl } = this.form.getRawValue();
     const request: CreateRoomRequest = {
       name: name!,
       description: description || undefined,
       coverUrl: coverUrl || undefined,
+      allowGuestControl: allowGuestControl ?? false,
     };
 
     this.submitting.set(true);
