@@ -3,13 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { authInterceptor } from './auth.interceptor';
-import { SUPABASE_CLIENT } from '../supabase/supabase-client.token';
+import { AuthService } from '../services/auth.service';
 
-const getSession = vi.fn();
-
-function sessionWith(token: string | null): { data: { session: { access_token: string } | null } } {
-  return { data: { session: token ? { access_token: token } : null } };
-}
+const accessToken = vi.fn<() => string | null>();
 
 describe('authInterceptor', () => {
   let http: HttpClient;
@@ -20,34 +16,32 @@ describe('authInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
-        { provide: SUPABASE_CLIENT, useValue: { auth: { getSession } } },
+        { provide: AuthService, useValue: { accessToken } },
       ],
     });
     http = TestBed.inject(HttpClient);
     httpMock = TestBed.inject(HttpTestingController);
-    getSession.mockReset();
+    accessToken.mockReset();
   });
 
   afterEach(() => {
     httpMock.verify();
   });
 
-  it('adds a Bearer token to API requests when a session exists', async () => {
-    getSession.mockResolvedValue(sessionWith('token-123'));
+  it('adds a Bearer token to API requests when a token is stored', () => {
+    accessToken.mockReturnValue('token-123');
 
     http.get(`${environment.apiUrl}/rooms`).subscribe();
-    await new Promise((resolve) => setTimeout(resolve));
 
     const req = httpMock.expectOne(`${environment.apiUrl}/rooms`);
     expect(req.request.headers.get('Authorization')).toBe('Bearer token-123');
     req.flush([]);
   });
 
-  it('sends API requests without a header when there is no session', async () => {
-    getSession.mockResolvedValue(sessionWith(null));
+  it('sends API requests without a header when there is no token', () => {
+    accessToken.mockReturnValue(null);
 
     http.get(`${environment.apiUrl}/rooms`).subscribe();
-    await new Promise((resolve) => setTimeout(resolve));
 
     const req = httpMock.expectOne(`${environment.apiUrl}/rooms`);
     expect(req.request.headers.has('Authorization')).toBe(false);
@@ -59,7 +53,7 @@ describe('authInterceptor', () => {
 
     const req = httpMock.expectOne('https://example.com/data');
     expect(req.request.headers.has('Authorization')).toBe(false);
-    expect(getSession).not.toHaveBeenCalled();
+    expect(accessToken).not.toHaveBeenCalled();
     req.flush({});
   });
 });

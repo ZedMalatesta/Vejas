@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
-import {AuthService} from '../../../core/services/auth.service';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -11,23 +11,17 @@ import {AuthService} from '../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Register {
-  authService = inject(AuthService);
-  errorMessage = '';
-  private fb = inject(FormBuilder);
-  form = this.fb.group({
-    username: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(2),
-      ],
-    ],
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
+  readonly errorMessage = signal('');
+
+  readonly form = this.fb.group({
+    username: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
-  private router = inject(Router);
 
   async register(): Promise<void> {
     if (this.form.invalid) {
@@ -38,10 +32,14 @@ export class Register {
     const email = this.form.value.email!;
     const password = this.form.value.password!;
 
-    const {error} = await this.authService.signUp(email, password);
-
-    if (error) {
-      this.errorMessage = error.message;
+    try {
+      const { error } = await this.authService.signUp(email, password);
+      if (error) {
+        this.errorMessage.set(error.message);
+        return;
+      }
+    } catch {
+      this.errorMessage.set('Authentication service is unreachable');
       return;
     }
 

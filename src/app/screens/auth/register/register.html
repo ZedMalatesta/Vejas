@@ -87,6 +87,12 @@
 
         </div>
 
+        @if (errorMessage()) {
+            <p class="auth__error auth__error--submit" role="alert">
+                {{ errorMessage() }}
+            </p>
+        }
+
         <button
                 (click)="register()"
                 [disabled]="form.invalid"

@@ -1,23 +1,19 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { from, switchMap } from 'rxjs';
+import { inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { supabase } from '../supabase/supabase';
+import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith(environment.apiUrl)) {
     return next(req);
   }
 
-  return from(supabase.auth.getSession()).pipe(
-    switchMap(({ data: { session } }) => {
-      if (!session) {
-        return next(req);
-      }
-      return next(
-        req.clone({
-          setHeaders: { Authorization: `Bearer ${session.access_token}` },
-        })
-      );
-    })
+  const token = inject(AuthService).accessToken();
+  if (!token) {
+    return next(req);
+  }
+
+  return next(
+    req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
   );
 };

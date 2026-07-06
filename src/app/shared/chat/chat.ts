@@ -25,10 +25,7 @@ export class Chat implements AfterViewInit {
   private readonly chatService = inject(ChatService);
   readonly messages = this.chatService.messages;
   private readonly authService = inject(AuthService);
-  readonly author = computed(() => {
-    const user = this.authService.user();
-    return user?.user_metadata?.['full_name'] ?? user?.email ?? 'Guest';
-  });
+  readonly author = computed(() => this.authService.user()?.login ?? 'Guest');
   private readonly messageList =
     viewChild<ElementRef<HTMLElement>>('messageList');
 
