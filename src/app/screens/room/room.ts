@@ -19,6 +19,9 @@ import { shouldSeek } from '../../utils/playback-sync';
 import { RoomSessionService } from './room-session.service';
 
 const HEARTBEAT_MS = 5000;
+/** Player events fired within this window after a programmatic remote
+ *  apply are echoes, not user actions — they must not be re-broadcast. */
+const REMOTE_ECHO_WINDOW_MS = 1200;
 
 @Component({
   selector: 'app-room',
@@ -34,20 +37,25 @@ export class Room implements OnInit, OnDestroy {
 
   private readonly player = viewChild(VideoPlayer);
   private heartbeat: ReturnType<typeof setInterval> | null = null;
+  private lastRemoteApplyAt = 0;
 
   constructor() {
-    // Viewers follow the admin's playback state.
+    // Everyone follows broadcast playback state. The server never echoes
+    // an update back to its sender, so applying it here is always
+    // "someone else changed playback" — including the host receiving
+    // a viewer's pause in guest-control rooms.
     effect(() => {
       const playback = this.session.playback();
       const player = this.player();
-      if (!player?.ready() || this.session.isAdmin()) return;
+      if (!player?.ready()) return;
 
-      // Extrapolate the admin position: the snapshot was taken at updatedAt.
+      // Extrapolate the position: the snapshot was taken at updatedAt.
       const elapsed = playback.isPlaying
         ? (Date.now() - new Date(playback.updatedAt).getTime()) / 1000
         : 0;
       const targetTime = playback.currentTime + elapsed;
 
+      this.lastRemoteApplyAt = Date.now();
       if (shouldSeek(player.currentTime(), targetTime)) {
         player.seekTo(targetTime);
       }
@@ -55,6 +63,16 @@ export class Room implements OnInit, OnDestroy {
         player.play();
       } else {
         player.pause();
+      }
+    });
+
+    // While a controller's video actually plays, keep broadcasting the
+    // position so late joiners and drifted viewers stay in sync.
+    effect(() => {
+      if (this.session.canControl()) {
+        this.startHeartbeat();
+      } else {
+        this.stopHeartbeat();
       }
     });
   }
@@ -70,22 +88,22 @@ export class Room implements OnInit, OnDestroy {
   }
 
   onPlayerState({ isPlaying, currentTime }: PlayerStateChange): void {
-    this.session.updatePlayback(isPlaying, currentTime);
-
-    if (isPlaying) {
-      this.startHeartbeat();
-    } else {
-      this.stopHeartbeat();
+    // A state change right after a remote apply is our own player
+    // reacting to that apply — re-broadcasting it would ping-pong
+    // play/pause between clients.
+    if (Date.now() - this.lastRemoteApplyAt < REMOTE_ECHO_WINDOW_MS) {
+      return;
     }
+    this.session.updatePlayback(isPlaying, currentTime);
   }
 
-  /** While the admin is playing, keep broadcasting the position so
-   *  late joiners and drifted viewers stay in sync. */
   private startHeartbeat(): void {
-    this.stopHeartbeat();
+    if (this.heartbeat) return;
     this.heartbeat = setInterval(() => {
       const player = this.player();
-      if (player?.ready()) {
+      // Only report reality: a paused player must not broadcast
+      // isPlaying=true and resume everyone else.
+      if (player?.ready() && player.isPlaying()) {
         this.session.updatePlayback(true, player.currentTime());
       }
     }, HEARTBEAT_MS);

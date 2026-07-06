@@ -5,6 +5,11 @@
   @if (!canControl()) {
     <div class="player-shield" aria-hidden="true"></div>
   }
+  @if (muted() && ready()) {
+    <button class="player-unmute" type="button" (click)="unmute()">
+      🔊 Tap for sound
+    </button>
+  }
   @if (!videoId()) {
     <div class="player-placeholder">
       <p>No video playing yet</p>

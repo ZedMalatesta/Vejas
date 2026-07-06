@@ -35,9 +35,13 @@ export class VideoPlayer implements OnDestroy {
 
   readonly ready = signal(false);
   readonly playerError = signal('');
+  /** True while the player is muted (passive viewers start muted so
+   *  browsers allow the sync-driven autostart). */
+  readonly muted = signal(false);
 
   private readonly host = viewChild<ElementRef<HTMLElement>>('host');
   private player: YtPlayer | null = null;
+  private playingStateCode = -2;
   private currentId = '';
   private destroyed = false;
 
@@ -67,6 +71,16 @@ export class VideoPlayer implements OnDestroy {
     return this.player?.getCurrentTime() ?? 0;
   }
 
+  isPlaying(): boolean {
+    return this.player?.getPlayerState() === this.playingStateCode;
+  }
+
+  /** Called from a real user click, so the browser allows the sound. */
+  unmute(): void {
+    this.player?.unMute();
+    this.muted.set(false);
+  }
+
   ngOnDestroy(): void {
     this.destroyed = true;
     this.player?.destroy();
@@ -83,6 +97,7 @@ export class VideoPlayer implements OnDestroy {
 
     const yt = await loadYouTubeApi();
     if (this.destroyed) return;
+    this.playingStateCode = yt.PlayerState.PLAYING;
 
     this.player = new yt.Player(hostElement, {
       videoId,
@@ -100,8 +115,12 @@ export class VideoPlayer implements OnDestroy {
       events: {
         onReady: () => {
           // Muted playback keeps browser autoplay policies from blocking
-          // the sync-driven start for viewers.
-          if (!this.canControl()) this.player?.mute();
+          // the sync-driven start for viewers. They unmute with the
+          // dedicated button (a real gesture), since controls are hidden.
+          if (!this.canControl()) {
+            this.player?.mute();
+            this.muted.set(true);
+          }
           this.ready.set(true);
         },
         onStateChange: (event) => {
