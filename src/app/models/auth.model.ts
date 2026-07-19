@@ -1,6 +1,8 @@
 export interface AuthUser {
   id: string;
   login: string;
+  /** Throwaway identity issued by POST /auth/guest — no profile, no room ownership. */
+  isGuest: boolean;
 }
 
 export interface AuthError {

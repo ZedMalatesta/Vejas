@@ -39,7 +39,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--app-muted);
+  // Fixed light tone: the wrapper is always #000, and the light theme's
+  // muted token is a dark slate that disappears on it. The global
+  // `p { color: var(--app-text) }` rule would override the container
+  // color, so pin the paragraph too.
+  color: #94a3b8;
+
+  p {
+    color: inherit;
+  }
 
   &--error {
     background: #000;

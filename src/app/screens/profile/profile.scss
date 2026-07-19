@@ -1,3 +1,14 @@
+// Same outer spacing the home page gives these cards via its padded grid.
+app-header {
+  display: block;
+  margin: clamp(1rem, 2vw, 2rem) clamp(1rem, 2vw, 2rem) 0;
+}
+
+app-footer {
+  display: block;
+  margin: 0 clamp(1rem, 2vw, 2rem) clamp(1rem, 2vw, 2rem);
+}
+
 .profile {
   display: grid;
   grid-template-columns: 1fr 1fr;

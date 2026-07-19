@@ -37,14 +37,14 @@ describe('Register', () => {
   });
 
   it('navigates home after a successful registration', async () => {
-    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     signUp.mockResolvedValue({ error: null });
 
     component.form.setValue({ username: 'alex', email: 'a@b.com', password: 'secret123' });
     await component.register();
 
     expect(signUp).toHaveBeenCalledWith('a@b.com', 'secret123');
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(navigate).toHaveBeenCalledWith('/');
   });
 
   it('renders the auth error message in the template when registration fails', async () => {

@@ -4,7 +4,7 @@ import { Register } from './screens/auth/register/register';
 import { HomePage } from './screens/home-page/home-page';
 import { ForgotPassword } from './screens/auth/forgot-password/forgot-password';
 import { ChangePassword } from './screens/auth/change-password/change-password';
-import { authGuard } from './core/guards/auth-guard';
+import { authGuard, roomGuard } from './core/guards/auth-guard';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes-guard';
 
 export const routes: Routes = [
@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'room/:id',
     loadComponent: () => import('./screens/room/room').then((m) => m.Room),
-    canActivate: [authGuard],
+    canActivate: [roomGuard],
   },
   {
     path: 'profile',

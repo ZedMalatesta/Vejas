@@ -124,11 +124,13 @@ describe('RoomList', () => {
     expect(component.rooms()).toEqual([ROOM]);
   });
 
-  it('hides the create-room link for anonymous users', async () => {
+  it('shows the create-room link to anonymous users too (guard redirects them to login)', async () => {
     await fixture.whenStable();
     flushInitialRequest();
     await fixture.whenStable();
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/rooms/new"]')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('a[href="/rooms/new"]')
+    ).not.toBeNull();
   });
 });

@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-height: 30rem;
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-md);
   background: var(--app-surface);
@@ -41,7 +42,7 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--app-accent);
-    // Long author logins wrap inside the bubble instead of widening it.
+    // Guest logins can be long emails — wrap them inside the bubble.
     overflow-wrap: anywhere;
     min-width: 0;
   }

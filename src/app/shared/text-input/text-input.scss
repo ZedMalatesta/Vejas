@@ -6,20 +6,21 @@
 .text-input {
   width: 100%;
   padding: 0.6rem 0.9rem;
-  background: #2a2b2f;
-  border: 1px solid #3a3b3f;
-  border-radius: 6px;
-  color: #c9d1d9;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text);
   font-size: 0.9rem;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--app-transition-fast), box-shadow var(--app-transition-fast);
 
   &::placeholder {
-    color: #6e7681;
+    color: var(--app-muted);
   }
 
   &:focus {
-    border-color: #58a6ff;
+    border-color: var(--app-accent);
+    box-shadow: var(--app-focus-ring);
   }
 }
