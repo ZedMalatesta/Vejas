@@ -41,6 +41,8 @@ interface YtNamespace {
     element: HTMLElement,
     options: {
       videoId: string;
+      width: string;
+      height: string;
       playerVars: Record<string, string | number>;
       events: {
         onReady: () => void;

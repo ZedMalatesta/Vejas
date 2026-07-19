@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import { APP_BRAND } from '../../../../core/brand';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Room } from '../../../../models/room.model';
 import { RoomList } from './room-list';
@@ -41,6 +42,7 @@ describe('RoomList', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: AuthService, useValue: { user: () => null } },
+        { provide: APP_BRAND, useValue: { name: 'Vejas', logoUrl: 'icons/logo.svg' } },
       ],
     }).compileComponents();
 

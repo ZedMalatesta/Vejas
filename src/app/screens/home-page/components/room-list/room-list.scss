@@ -110,6 +110,9 @@
 
 .room-list__grid {
   display: grid;
+  // minmax(0, …) also in the single-column case: without it a card with
+  // an unbreakable name widens the whole page on phones.
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
 }
 

@@ -1,6 +1,7 @@
 <header aria-label="Temporary header" class="header__header">
   <div class="header__brand">
-    Vejas
+    <img class="header__logo-icon" [src]="brand.logoUrl" alt="" aria-hidden="true" />
+    {{ brand.name }}
   </div>
   <nav aria-label="Main navigation" class="header__nav">
     <a class="header__link" routerLink="/">Home</a>

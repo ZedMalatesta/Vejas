@@ -18,6 +18,12 @@
 	font-weight: 700;
 }
 
+.header__logo-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	flex-shrink: 0;
+}
+
 .header__nav {
 	display: inline-flex;
 	gap: 0.8rem;

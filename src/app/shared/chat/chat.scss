@@ -41,11 +41,15 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--app-accent);
+    // Long author logins wrap inside the bubble instead of widening it.
+    overflow-wrap: anywhere;
+    min-width: 0;
   }
 
   &__time {
     font-size: 0.625rem;
     color: var(--app-muted);
+    flex-shrink: 0;
   }
 
   &__text {
