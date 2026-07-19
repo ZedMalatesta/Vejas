@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { APP_BRAND } from '../../core/brand';
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfile } from '../../models/auth.model';
 import { Room } from '../../models/room.model';
@@ -55,6 +56,7 @@ describe('Profile', () => {
             signOut: vi.fn(),
           },
         },
+        { provide: APP_BRAND, useValue: { name: 'Vejas', logoUrl: 'icons/logo.svg' } },
       ],
     }).compileComponents();
 

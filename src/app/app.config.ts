@@ -11,7 +11,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    // Order matters: authInterceptor must see 401s before errorInterceptor,
+    // so a silent token refresh does not flash an error notification.
+    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
     { provide: THEME_CONFIG, useValue: DEFAULT_THEME_CONFIG },
   ],
 };

@@ -2,7 +2,9 @@
 
 @if (session.loading()) {
   <div class="room-state" role="status">
-    <span class="room-state__spinner" aria-hidden="true"></span>
+    <div class="room-state__screen" aria-hidden="true">
+      <span class="room-state__bouncer">{{ brand.name }}</span>
+    </div>
     Loading room...
   </div>
 } @else if (session.error() === 'not-found') {

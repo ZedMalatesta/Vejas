@@ -17,6 +17,7 @@ import { PlayerStateChange, VideoPlayer } from '../../shared/video-player/video-
 import { ViewersPipe } from '../../core/pipes/viewers-pipe';
 import { shouldSeek } from '../../utils/playback-sync';
 import { RoomSessionService } from './room-session.service';
+import { APP_BRAND } from '../../core/brand';
 
 const HEARTBEAT_MS = 5000;
 /** Player events fired within this window after a programmatic remote
@@ -32,6 +33,7 @@ const REMOTE_ECHO_WINDOW_MS = 1200;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Room implements OnInit, OnDestroy {
+  protected readonly brand = inject(APP_BRAND);
   protected readonly session = inject(RoomSessionService);
   private readonly route = inject(ActivatedRoute);
 

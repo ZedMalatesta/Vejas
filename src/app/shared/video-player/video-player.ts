@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   effect,
@@ -26,6 +27,7 @@ export interface PlayerStateChange {
 })
 export class VideoPlayer implements OnDestroy {
   private readonly config = inject(YOUTUBE_PLAYER_CONFIG);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly videoId = input.required<string>();
   /** Controllers drive playback; passive viewers get a muted, sync-driven player. */
@@ -44,6 +46,8 @@ export class VideoPlayer implements OnDestroy {
   private playingStateCode = -2;
   private currentId = '';
   private destroyed = false;
+  private resizeObserver: ResizeObserver | null = null;
+  private readonly onWindowResize = (): void => this.updateAvailableSize();
 
   constructor() {
     effect(() => {
@@ -52,6 +56,18 @@ export class VideoPlayer implements OnDestroy {
       if (!id || !host || id === this.currentId) return;
       this.currentId = id;
       void this.showVideo(id, host.nativeElement);
+    });
+
+    // Measure how much of the viewport the 16:9 box may take instead of
+    // guessing the page chrome height with a CSS constant. Re-measured
+    // when the column resizes or surrounding content reflows (observing
+    // the body catches chrome-height changes, e.g. a wrapping title).
+    afterNextRender(() => {
+      this.updateAvailableSize();
+      this.resizeObserver = new ResizeObserver(() => this.updateAvailableSize());
+      this.resizeObserver.observe(this.hostRef.nativeElement);
+      this.resizeObserver.observe(document.body);
+      window.addEventListener('resize', this.onWindowResize);
     });
   }
 
@@ -83,8 +99,24 @@ export class VideoPlayer implements OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    window.removeEventListener('resize', this.onWindowResize);
     this.player?.destroy();
     this.player = null;
+  }
+
+  /** Fit the whole 16:9 box on screen: cap its width so the height never
+   *  exceeds the viewport space below the player's own top edge. */
+  private updateAvailableSize(): void {
+    const el = this.hostRef.nativeElement;
+    // Position within the document, not the scrolled viewport — the cap
+    // must not change while the user scrolls.
+    const topInDocument = el.getBoundingClientRect().top + window.scrollY;
+    const bottomGap = 16;
+    const availableHeight = window.innerHeight - topInDocument - bottomGap;
+    const maxWidth = Math.max(Math.round(availableHeight * (16 / 9)), 240);
+    el.style.setProperty('--player-max-w', `${maxWidth}px`);
   }
 
   private async showVideo(videoId: string, hostElement: HTMLElement): Promise<void> {
@@ -101,6 +133,11 @@ export class VideoPlayer implements OnDestroy {
 
     this.player = new yt.Player(hostElement, {
       videoId,
+      // The API writes these onto the iframe it creates. Percentages keep
+      // the iframe glued to .player-wrapper — component styles cannot
+      // reach the iframe (it is created outside Angular's encapsulation).
+      width: '100%',
+      height: '100%',
       playerVars: {
         // Never autoplay: the admin starts playback with a real click
         // (browser gesture), viewers are driven by the sync effect.

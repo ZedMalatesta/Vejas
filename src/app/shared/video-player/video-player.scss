@@ -1,10 +1,15 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .player-wrapper {
   position: relative;
   aspect-ratio: 16 / 9;
-  // Keep the whole video on screen: on short viewports the width shrinks
-  // so the 16:9 box never grows taller than the window minus the page
-  // chrome (app header + room header + paddings).
-  width: min(100%, calc((100vh - 13rem) * 16 / 9));
+  // Keep the whole video on screen: the component measures the real
+  // space below the page chrome and sets --player-max-w accordingly
+  // (see updateAvailableSize in video-player.ts).
+  width: min(100%, var(--player-max-w, 100%));
   margin-inline: auto;
   background: #000;
   border-radius: 6px;
@@ -20,9 +25,11 @@
   height: 100%;
 }
 
-// The IFrame API replaces the inner div with an iframe element.
-.player-host :first-child,
-.player-host iframe {
+// The IFrame API replaces the inner div with an iframe element created
+// outside Angular's encapsulation (no _ngcontent attribute), so plain
+// scoped selectors never match it — ::ng-deep is required here.
+.player-host ::ng-deep iframe,
+.player-host :first-child {
   width: 100%;
   height: 100%;
   border: none;
@@ -32,7 +39,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--app-muted);
+  // Fixed light tone: the wrapper is always #000, and the light theme's
+  // muted token is a dark slate that disappears on it. The global
+  // `p { color: var(--app-text) }` rule would override the container
+  // color, so pin the paragraph too.
+  color: #94a3b8;
+
+  p {
+    color: inherit;
+  }
 
   &--error {
     background: #000;

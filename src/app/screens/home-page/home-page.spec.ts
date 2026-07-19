@@ -3,6 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { APP_BRAND } from '../../core/brand';
 import { HomePage } from './home-page';
 
 describe('HomePage', () => {
@@ -12,7 +13,12 @@ describe('HomePage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HomePage],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: APP_BRAND, useValue: { name: 'Vejas', logoUrl: 'icons/logo.svg' } },
+      ],
     })
     .compileComponents();
 

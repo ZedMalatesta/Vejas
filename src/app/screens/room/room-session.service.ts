@@ -107,7 +107,7 @@ export class RoomSessionService {
         this.applySnapshot(room);
         this.loading.set(false);
 
-        this.socket.connect(this.auth.accessToken?.() ?? '');
+        this.socket.connect(() => this.auth.accessToken() ?? '');
         this.socket.joinRoom(roomId);
       },
       error: (err: HttpErrorResponse) => {
