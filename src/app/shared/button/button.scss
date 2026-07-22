@@ -1,21 +1,22 @@
 .btn {
   padding: 0.6rem 1.1rem;
-  background: #1f6feb;
+  background: var(--app-accent);
   border: none;
-  border-radius: 6px;
-  color: #fff;
+  border-radius: var(--app-radius-sm);
+  color: var(--app-bg);
   font-size: 0.9rem;
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s;
+  transition: background var(--app-transition-fast);
 
   &:hover {
-    background: #388bfd;
+    background: var(--app-accent-hover);
   }
 
   &:active {
-    background: #1158c7;
+    background: var(--app-accent-hover);
+    filter: brightness(0.95);
   }
 }

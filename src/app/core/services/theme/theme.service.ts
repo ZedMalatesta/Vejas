@@ -1,9 +1,13 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { THEME_CONFIG, Theme } from './theme.config';
+import { DEFAULT_THEME_CONFIG, THEME_CONFIG, Theme } from './theme.config';
+
+const THEME_STORAGE_KEY = 'vejas.theme';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly config = inject(THEME_CONFIG);
+  // Optional so TestBeds (and any host without the provider) fall back
+  // to the default config instead of throwing at injection time.
+  private readonly config = inject(THEME_CONFIG, { optional: true }) ?? DEFAULT_THEME_CONFIG;
 
   /** Current theme. Drives the DOM via the effect below. */
   readonly theme = signal<Theme>(this.guessFromTime());
@@ -11,11 +15,36 @@ export class ThemeService {
   constructor() {
     // Truly reactive: the effect reads theme(), so any signal update re-applies it.
     effect(() => this.applyToDom(this.theme()));
-    this.initSystemSync();
+    const stored = this.readStored();
+    if (stored) {
+      this.theme.set(stored);
+    } else {
+      this.initSystemSync();
+    }
   }
 
   setTheme(theme: Theme): void {
     this.theme.set(theme);
+  }
+
+  /** Manual switch from the UI: applies and persists the choice. */
+  toggle(): void {
+    const next: Theme = this.theme() === 'dark' ? 'light' : 'dark';
+    this.theme.set(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      /* storage unavailable (private mode etc.) — theme still applies */
+    }
+  }
+
+  private readStored(): Theme | null {
+    try {
+      const value = localStorage.getItem(THEME_STORAGE_KEY);
+      return value === 'light' || value === 'dark' ? value : null;
+    } catch {
+      return null;
+    }
   }
 
   private applyToDom(theme: Theme): void {
@@ -46,7 +75,10 @@ export class ThemeService {
 
     try {
       mq.addEventListener('change', (ev: MediaQueryListEvent) => {
-        this.theme.set(ev.matches ? 'dark' : 'light');
+        // A stored manual choice wins over later system flips.
+        if (!this.readStored()) {
+          this.theme.set(ev.matches ? 'dark' : 'light');
+        }
       });
     } catch {
       /* older browsers without addEventListener on MediaQueryList */

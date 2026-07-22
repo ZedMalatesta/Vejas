@@ -68,8 +68,8 @@
 
 .auth__input:focus {
   outline: none;
-  border-color: var(--app-primary);
-  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+  border-color: var(--app-accent);
+  box-shadow: var(--app-focus-ring);
 }
 
 .auth__error {
@@ -84,11 +84,11 @@
   width: 100%;
   padding: 0.95rem;
 
-  border: 1px solid #2563eb;
+  border: 1px solid var(--app-accent);
   border-radius: 0.875rem;
 
-  background: #1d4ed8;
-  color: white;
+  background: var(--app-accent);
+  color: var(--app-bg);
 
   font-size: 1rem;
   font-weight: 600;
@@ -102,9 +102,9 @@
 }
 
 .auth__submit:not(:disabled):hover {
-  background: #1e40af;
-  border-color: #3b82f6;
-  box-shadow: 0 0 16px rgb(37 99 235 / 0.25);
+  background: var(--app-accent-hover);
+  border-color: var(--app-accent-hover);
+  box-shadow: 0 0 16px var(--app-accent-glow);
 }
 
 .auth__submit:not(:disabled):active {
@@ -167,7 +167,7 @@ app-auth-button {
 }
 
 .auth__link:hover {
-  color: var(--app-primary);
+  color: var(--app-accent);
 }
 
 .auth__text {

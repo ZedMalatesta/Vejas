@@ -82,16 +82,13 @@
       <a
         class="auth__link"
         routerLink="/auth/register"
+        queryParamsHandling="preserve"
       >
         Sign up
       </a>
 
-      <a
-        class="auth__link"
-        routerLink="/auth/forgot-password"
-      >
-        Forgot password?
-      </a>
+      <!-- Password recovery is hidden until the backend gets an email
+           flow; the route still exists for the future feature. -->
 
     </div>
 

@@ -14,8 +14,56 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	font-size: 0.95rem;
-	font-weight: 700;
+	text-decoration: none;
+}
+
+// The logo is its own group so themes/animations can restyle it
+// without touching the rest of the header.
+.header__logo {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	color: var(--app-accent);
+	transition: filter var(--app-transition-fast);
+
+	.header__brand:hover & {
+		filter: brightness(1.15);
+	}
+}
+
+.header__logo-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	flex-shrink: 0;
+}
+
+.header__logo-text {
+	font-size: 1.05rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	background: linear-gradient(120deg, var(--app-accent), var(--app-accent-hover));
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+}
+
+.header__guest {
+	padding: 0.4rem 0.7rem;
+	border-radius: 999px;
+	border: 1px dashed var(--app-border-strong);
+	color: var(--app-muted);
+	font-size: 0.8rem;
+	font-weight: 600;
+	white-space: nowrap;
+	max-width: 9rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.header__actions {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
 }
 
 .header__nav {
@@ -32,4 +80,49 @@
 	font-size: 0.85rem;
 	font-weight: 600;
 	background: var(--app-muted-bg);
+}
+
+.header__theme {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1px solid var(--app-border);
+	border-radius: 999px;
+	background: var(--app-muted-bg);
+	color: var(--app-text);
+	cursor: pointer;
+	transition: color var(--app-transition-fast), border-color var(--app-transition-fast);
+	flex-shrink: 0;
+
+	svg {
+		width: 1.05rem;
+		height: 1.05rem;
+	}
+
+	&:hover {
+		color: var(--app-accent);
+		border-color: var(--app-accent);
+	}
+}
+
+@media (max-width: 480px) {
+	.header__header {
+		gap: 0.6rem;
+	}
+
+	.header__actions {
+		gap: 0.5rem;
+	}
+
+	.header__nav {
+		gap: 0.4rem;
+	}
+
+	.header__link {
+		padding: 0.35rem 0.55rem;
+		font-size: 0.8rem;
+	}
 }

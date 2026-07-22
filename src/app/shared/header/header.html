@@ -1,15 +1,43 @@
-<header aria-label="Temporary header" class="header__header">
-  <div class="header__brand">
-    Vejas
+<header aria-label="Site header" class="header__header">
+  <a routerLink="/" class="header__brand" [attr.aria-label]="brand.name + ' — home'">
+    <span class="header__logo">
+      <img class="header__logo-icon" [src]="brand.logoUrl" alt="" aria-hidden="true" />
+      <span class="header__logo-text">{{ brand.name }}</span>
+    </span>
+  </a>
+  <div class="header__actions">
+    <nav aria-label="Main navigation" class="header__nav">
+      <a class="header__link" routerLink="/">Home</a>
+      @if (isAuthorized()) {
+        <a class="header__link" routerLink="/profile">Profile</a>
+        <button class="header__link" type="button" (click)="signOut()">Logout</button>
+      } @else {
+        @if (guestName(); as name) {
+          <span class="header__guest" [title]="'Watching as guest'">{{ name }}</span>
+        }
+        <a class="header__link" routerLink="/auth/login">Login</a>
+        <a class="header__link" routerLink="/auth/register">Sign up</a>
+      }
+    </nav>
+    <button
+      class="header__theme"
+      type="button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      [title]="theme() === 'dark' ? 'Light theme' : 'Dark theme'"
+    >
+      @if (theme() === 'dark') {
+        <!-- sun -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      } @else {
+        <!-- moon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </svg>
+      }
+    </button>
   </div>
-  <nav aria-label="Main navigation" class="header__nav">
-    <a class="header__link" routerLink="/">Home</a>
-    @if (isAuthorized()) {
-      <a class="header__link" routerLink="/profile">Profile</a>
-      <button class="header__link" type="button" (click)="signOut()">Logout</button>
-    } @else {
-      <a class="header__link" routerLink="/auth/login">Login</a>
-      <a class="header__link" routerLink="/auth/register">Sign up</a>
-    }
-  </nav>
 </header>

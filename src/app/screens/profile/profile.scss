@@ -1,3 +1,14 @@
+// Same outer spacing the home page gives these cards via its padded grid.
+app-header {
+  display: block;
+  margin: clamp(1rem, 2vw, 2rem) clamp(1rem, 2vw, 2rem) 0;
+}
+
+app-footer {
+  display: block;
+  margin: 0 clamp(1rem, 2vw, 2rem) clamp(1rem, 2vw, 2rem);
+}
+
 .profile {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -20,6 +31,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 2rem;
+  // Grid items default to min-width auto, so a long room name inflates
+  // the whole column past the viewport on narrow screens.
+  min-width: 0;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 12px;
@@ -207,6 +221,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  // Without this the nowrap text sets the flex item's min-content,
+  // which propagates up and pushes the whole grid column past the
+  // viewport on narrow screens.
+  flex: 1;
+  min-width: 0;
 }
 
 .profile__room-viewers {

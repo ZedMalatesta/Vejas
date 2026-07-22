@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import { APP_BRAND } from '../../../../core/brand';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Room } from '../../../../models/room.model';
 import { RoomList } from './room-list';
@@ -41,6 +42,7 @@ describe('RoomList', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: AuthService, useValue: { user: () => null } },
+        { provide: APP_BRAND, useValue: { name: 'Vejas', logoUrl: 'icons/logo.svg' } },
       ],
     }).compileComponents();
 
@@ -122,11 +124,13 @@ describe('RoomList', () => {
     expect(component.rooms()).toEqual([ROOM]);
   });
 
-  it('hides the create-room link for anonymous users', async () => {
+  it('shows the create-room link to anonymous users too (guard redirects them to login)', async () => {
     await fixture.whenStable();
     flushInitialRequest();
     await fixture.whenStable();
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/rooms/new"]')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('a[href="/rooms/new"]')
+    ).not.toBeNull();
   });
 });

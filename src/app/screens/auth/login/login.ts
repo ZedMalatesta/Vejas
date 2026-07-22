@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +13,7 @@ import { Router, RouterLink } from '@angular/router';
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
 
   readonly errorMessage = signal('');
@@ -42,6 +43,11 @@ export class Login {
       return;
     }
 
-    await this.router.navigate(['/']);
+    await this.router.navigateByUrl(safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')));
   }
+}
+
+/** Only in-app paths — anything else (external URLs, '//host') falls back to home. */
+export function safeReturnUrl(returnUrl: string | null): string {
+  return returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : '/';
 }

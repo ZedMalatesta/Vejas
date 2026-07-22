@@ -56,14 +56,14 @@ describe('Login', () => {
   });
 
   it('navigates home after a successful sign-in', async () => {
-    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     signIn.mockResolvedValue({ error: null });
 
     component.form.setValue({ email: 'a@b.com', password: 'secret123' });
     await component.login();
 
     expect(signIn).toHaveBeenCalledWith('a@b.com', 'secret123');
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(navigate).toHaveBeenCalledWith('/');
   });
 
   it('renders the auth error message in the template when sign-in fails', async () => {

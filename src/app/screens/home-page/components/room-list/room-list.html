@@ -3,9 +3,9 @@
     <p class="room-list__eyebrow">Live now</p>
     <div class="room-list__title-row">
       <h2 class="room-list__title">Rooms</h2>
-      @if (user()) {
-        <a class="room-list__create" routerLink="/rooms/new">+ Create room</a>
-      }
+      <!-- Visible to everyone: anonymous visitors are sent to login by the
+           route guard and come back here after signing in (returnUrl). -->
+      <a class="room-list__create" routerLink="/rooms/new">+ Create room</a>
     </div>
     <input
       class="room-list__search"

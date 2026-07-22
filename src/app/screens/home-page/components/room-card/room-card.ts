@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Room } from '../../../../models/room.model';
 import { ViewersPipe } from '../../../../core/pipes/viewers-pipe';
-
-const FALLBACK_COVER = 'https://placehold.co/640x360?text=Vejas';
+import { APP_BRAND } from '../../../../core/brand';
 
 @Component({
   selector: 'app-room-card',
@@ -13,7 +12,13 @@ const FALLBACK_COVER = 'https://placehold.co/640x360?text=Vejas';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomCard {
+  private readonly brand = inject(APP_BRAND);
+
   readonly room = input.required<Room>();
 
-  readonly coverUrl = computed(() => this.room().coverUrl ?? FALLBACK_COVER);
+  readonly coverUrl = computed(
+    () =>
+      this.room().coverUrl ??
+      `https://placehold.co/640x360?text=${encodeURIComponent(this.brand.name)}`
+  );
 }

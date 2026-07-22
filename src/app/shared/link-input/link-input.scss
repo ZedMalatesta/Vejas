@@ -5,5 +5,8 @@
 
   app-text-input {
     flex: 1;
+    // Flex items refuse to shrink below the input's intrinsic width
+    // without this, pushing the row past narrow viewports.
+    min-width: 0;
   }
 }
