@@ -1,0 +1,21 @@
+# Secrets — env comes from compose/host environment, never baked into the image
+.env
+.env.*
+!.env.example
+
+# Build artifacts and deps (installed/built inside the image)
+node_modules
+dist
+coverage
+logs
+
+# VCS and tooling
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+.vscode
+.idea
+*.log
+.DS_Store
