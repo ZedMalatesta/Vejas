@@ -1,62 +1,75 @@
-<app-header />
+<app-header/>
 
 @if (session.loading()) {
-  <div class="room-state" role="status">
-    <div class="room-state__screen" aria-hidden="true">
-      <span class="room-state__bouncer">{{ brand.name }}</span>
+    <div class="room-state" role="status">
+        <div aria-hidden="true" class="room-state__screen">
+            <span class="room-state__bouncer">{{ brand.name }}</span>
+        </div>
+        Loading room...
     </div>
-    Loading room...
-  </div>
 } @else if (session.error() === 'not-found') {
-  <div class="room-state" role="alert">
-    <p class="room-state__code">404</p>
-    <p>This room does not exist or has been closed.</p>
-    <a class="room-state__home" routerLink="/">Back to rooms</a>
-  </div>
-} @else if (session.error()) {
-  <div class="room-state" role="alert">
-    <p>Could not load the room. Check your connection and try again.</p>
-    <a class="room-state__home" routerLink="/">Back to rooms</a>
-  </div>
-} @else {
-  <div class="room">
-    <header class="room__header">
-      <h1 class="room__name">{{ session.room()?.name }}</h1>
-      <div class="room__meta">
-        @if (session.isAdmin()) {
-          <span class="room__badge">You are the host</span>
-        } @else {
-          <span class="room__host">Hosted by {{ session.room()?.adminName }}</span>
-        }
-        <span class="room__viewers">{{ session.viewersCount() | viewers }}</span>
-      </div>
-    </header>
-
-    <div class="room__layout">
-      <div class="room__main">
-        <app-video-player
-          [videoId]="session.currentVideoId()"
-          [canControl]="session.canControl()"
-          (stateChange)="onPlayerState($event)"
-        />
-        @if (session.isAdmin()) {
-          <app-link-input (submit)="session.addToPlaylist($event)" />
-        }
-        <app-playlist
-          [items]="session.playlist()"
-          [currentIndex]="session.currentIndex()"
-          [canEdit]="session.isAdmin()"
-          (select)="session.selectVideo($event)"
-          (remove)="session.removeFromPlaylist($event)"
-        />
-      </div>
-      <app-chat
-        class="room__chat"
-        [messages]="session.messages()"
-        (send)="session.sendMessage($event)"
-      />
+    <div class="room-state" role="alert">
+        <p class="room-state__code">404</p>
+        <p>This room does not exist or has been closed.</p>
+        <a class="room-state__home" routerLink="/">Back to rooms</a>
     </div>
-  </div>
+} @else if (session.error()) {
+    <div class="room-state" role="alert">
+        <p>Could not load the room. Check your connection and try again.</p>
+        <a class="room-state__home" routerLink="/">Back to rooms</a>
+    </div>
+} @else {
+    <div class="room">
+        <header class="room__header">
+            <h1 class="room__name">{{ session.room()?.name }}</h1>
+            <div class="room__meta">
+                @if (session.isAdmin()) {
+                    <span class="room__badge">You are the host</span>
+                } @else {
+                    <span class="room__host">Hosted by {{ session.room()?.adminName }}</span>
+                }
+                <span class="room__viewers">{{ session.viewersCount() | viewers }}</span>
+            </div>
+        </header>
+
+        <div class="room__layout">
+            <div class="room__main">
+                <app-video-player
+                        (stateChange)="onPlayerState($event)"
+                        [canControl]="session.canControl()"
+                        [videoId]="session.currentVideoId()"
+                />
+
+                <button
+                        (click)="addBookmark()"
+                        class="room__bookmark-button"
+                        type="button"
+                >
+                    🔖 Add bookmark
+                </button>
+
+                <app-bookmarks
+                        (seek)="seekToBookmark($event)"
+                />
+
+                @if (session.isAdmin()) {
+                    <app-link-input (submit)="session.addToPlaylist($event)"/>
+                }
+                <app-playlist
+                        (remove)="session.removeFromPlaylist($event)"
+                        (select)="session.selectVideo($event)"
+                        [canEdit]="session.isAdmin()"
+                        [currentIndex]="session.currentIndex()"
+                        [items]="session.playlist()"
+                />
+            </div>
+            <app-chat
+                    (send)="session.sendMessage($event)"
+                    [messages]="session.messages()"
+                    class="room__chat"
+            />
+        </div>
+    </div>
 }
 
-<app-footer />
+<app-footer/>

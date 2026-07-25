@@ -1,23 +1,17 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild,
-} from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Chat } from '../../shared/chat/chat';
-import { Footer } from '../../shared/footer/footer';
-import { Header } from '../../shared/header/header';
-import { LinkInput } from '../../shared/link-input/link-input';
-import { Playlist } from '../../shared/playlist/playlist';
-import { PlayerStateChange, VideoPlayer } from '../../shared/video-player/video-player';
-import { ViewersPipe } from '../../core/pipes/viewers-pipe';
-import { shouldSeek } from '../../utils/playback-sync';
-import { RoomSessionService } from './room-session.service';
-import { APP_BRAND } from '../../core/brand';
+import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, viewChild,} from '@angular/core';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {Chat} from '../../shared/chat/chat';
+import {Header} from '../../shared/header/header';
+import {LinkInput} from '../../shared/link-input/link-input';
+import {Playlist} from '../../shared/playlist/playlist';
+import {PlayerStateChange, VideoPlayer} from '../../shared/video-player/video-player';
+import {ViewersPipe} from '../../core/pipes/viewers-pipe';
+import {shouldSeek} from '../../utils/playback-sync';
+import {RoomSessionService} from './room-session.service';
+import {APP_BRAND} from '../../core/brand';
+import {Bookmarks} from './components/bookmarks/bookmarks';
+import {BookmarkService} from './services/bookmark.service';
+import {Footer} from "../../shared/footer/footer";
 
 const HEARTBEAT_MS = 5000;
 /** Player events fired within this window after a programmatic remote
@@ -26,7 +20,7 @@ const REMOTE_ECHO_WINDOW_MS = 1200;
 
 @Component({
   selector: 'app-room',
-  imports: [VideoPlayer, LinkInput, Playlist, Chat, RouterLink, ViewersPipe, Header, Footer],
+  imports: [VideoPlayer, LinkInput, Playlist, Chat, RouterLink, ViewersPipe, Header, Footer, Bookmarks],
   templateUrl: './room.html',
   styleUrl: './room.scss',
   providers: [RoomSessionService],
@@ -35,8 +29,8 @@ const REMOTE_ECHO_WINDOW_MS = 1200;
 export class Room implements OnInit, OnDestroy {
   protected readonly brand = inject(APP_BRAND);
   protected readonly session = inject(RoomSessionService);
+  protected readonly bookmarkService = inject(BookmarkService);
   private readonly route = inject(ActivatedRoute);
-
   private readonly player = viewChild(VideoPlayer);
   private heartbeat: ReturnType<typeof setInterval> | null = null;
   private lastRemoteApplyAt = 0;
@@ -94,6 +88,7 @@ export class Room implements OnInit, OnDestroy {
   ngOnInit(): void {
     const roomId = this.route.snapshot.paramMap.get('id') ?? '';
     this.session.load(roomId);
+    this.bookmarkService.setRoom(roomId);
   }
 
   ngOnDestroy(): void {
@@ -101,7 +96,7 @@ export class Room implements OnInit, OnDestroy {
     this.session.leave();
   }
 
-  onPlayerState({ isPlaying, currentTime }: PlayerStateChange): void {
+  onPlayerState({isPlaying, currentTime}: PlayerStateChange): void {
     // A state change right after a remote apply is our own player
     // reacting to that apply — re-broadcasting it would ping-pong
     // play/pause between clients.
@@ -109,6 +104,23 @@ export class Room implements OnInit, OnDestroy {
       return;
     }
     this.session.updatePlayback(isPlaying, currentTime);
+  }
+
+  addBookmark(): void {
+    const player = this.player();
+
+    if (!player) {
+      return;
+    }
+
+    this.bookmarkService.addBookmark(
+      `Bookmark ${this.bookmarkService.count() + 1}`,
+      player.currentTime(),
+    );
+  }
+
+  seekToBookmark(time: number): void {
+    this.player()?.seekTo(time);
   }
 
   private startHeartbeat(): void {
@@ -129,4 +141,6 @@ export class Room implements OnInit, OnDestroy {
       this.heartbeat = null;
     }
   }
+
+
 }

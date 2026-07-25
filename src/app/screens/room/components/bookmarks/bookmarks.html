@@ -1,0 +1,39 @@
+<section class="bookmarks">
+    <h3 class="bookmarks__title">
+        Bookmarks ({{ count() }})
+    </h3>
+
+    @if (hasBookmarks()) {
+        <ul class="bookmarks__list">
+            @for (bookmark of bookmarks(); track bookmark.id) {
+                <li
+                        (click)="seekTo(bookmark.time)"
+                        class="bookmarks__item"
+                >
+                    <div class="bookmarks__content">
+                        <div class="bookmarks__time">
+                            {{ formatTime(bookmark.time) }}
+                        </div>
+
+                        <div class="bookmarks__text">
+                            {{ bookmark.title }}
+                        </div>
+                    </div>
+
+                    <button
+                            (click)="$event.stopPropagation(); removeBookmark(bookmark.id)"
+                            aria-label="Delete bookmark"
+                            class="bookmarks__delete"
+                            type="button"
+                    >
+                        ✕
+                    </button>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p class="bookmarks__empty">
+            No bookmarks yet.
+        </p>
+    }
+</section>
