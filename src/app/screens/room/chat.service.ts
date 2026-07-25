@@ -10,8 +10,6 @@ export class ChatService {
   readonly messages = signal<RoomChatMessage[]>([]);
 
   constructor() {
-    // joinRoom's ack nests the snapshot under `state` -- unlike chatMessage,
-    // which is a single flat message.
     this.socket.on<{ state: { messages: RoomChatMessage[] } }>('roomState', ({ state }) => {
       this.messages.set(state.messages);
     });

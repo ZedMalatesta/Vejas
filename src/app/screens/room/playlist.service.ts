@@ -26,8 +26,6 @@ export class PlaylistService {
       this.currentIndex.set(currentIndex);
     };
 
-    // joinRoom's ack nests the snapshot under `state` -- unlike
-    // playlistUpdate, which is the flat { playlist, currentIndex } shape.
     this.socket.on<{ state: PlaylistStatePayload }>('roomState', ({ state }) => applyState(state));
     this.socket.on<PlaylistStatePayload>('playlistUpdate', applyState);
   }

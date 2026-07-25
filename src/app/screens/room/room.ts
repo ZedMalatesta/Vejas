@@ -44,7 +44,6 @@ export class Room implements OnInit, OnDestroy {
     return !!room && !!user && room.adminId === user.id;
   });
 
-  /** The admin always controls playback; everyone does if the room allows it. */
   protected readonly canControl = computed(
     () => this.isAdmin() || !!this.room()?.allowGuestControl
   );

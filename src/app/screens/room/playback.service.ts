@@ -22,10 +22,6 @@ export class PlaybackService {
       this.applyRemote(state);
     });
 
-    // joinRoom's ack nests the room's full live state under `state.playback`
-    // (alongside playlist/currentIndex/messages and the room's own fields at
-    // the top level) -- unlike playbackUpdate, which is just the flat
-    // { isPlaying, currentTime }.
     this.socket.on<{ state: { playback: PlaybackState } }>('roomState', ({ state }) => {
       this.applyRemote(state.playback);
     });
