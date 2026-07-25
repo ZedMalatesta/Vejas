@@ -78,7 +78,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: RoomSocket,
     @MessageBody() { roomId }: JoinRoomPayload,
   ): Promise<void> {
-    // Throws NotFoundException -> wsException filter if the room is unknown.
     const room = await this.rooms.findOne(roomId).catch(() => null);
     if (!room) {
       throw new WsException(`Room ${roomId} not found`);
@@ -92,9 +91,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.data.roomId = roomId;
     await client.join(roomId);
 
-    // Snapshot first, fresh count after: the snapshot's viewersCount was
-    // read before this client joined, so the broadcast must arrive later
-    // or the joiner overwrites the live number with a stale one.
     const state = await this.roomState.getState(roomId);
     client.emit('roomState', { ...room, state });
 
@@ -184,8 +180,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  /** Playback is open to everyone when the room was created with
-   *  "allow guest control"; the playlist always stays admin-only. */
   private async assertCanControlPlayback(
     client: RoomSocket,
     roomId: string,
