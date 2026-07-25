@@ -1,0 +1,37 @@
+// This is your Prisma schema file
+// learn more about it: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  login     String   @unique
+  password  String
+  nickname  String?
+  avatarUrl String?  @map("avatar_url")
+  roles     String[] @default(["user"])
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("User")
+}
+
+model Room {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  coverUrl    String?   @map("cover_url")
+  adminId     String    @map("admin_id")
+  allowGuestControl Boolean @default(false) @map("allow_guest_control")
+  createdAt   DateTime? @default(now()) @map("created_at")
+
+  @@map("rooms")
+}

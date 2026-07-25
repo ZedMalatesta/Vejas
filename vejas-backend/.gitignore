@@ -1,0 +1,40 @@
+# Environment — secrets never go to git (.env.example is the template and IS tracked)
+.env
+.env.*
+!.env.example
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/coverage
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# Logs
+/logs
+*.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# NOTE: prisma/migrations MUST stay in git — the database cannot be
+# reproduced on a server without them.
