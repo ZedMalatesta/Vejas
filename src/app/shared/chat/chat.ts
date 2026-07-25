@@ -1,16 +1,15 @@
+import {DatePipe} from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   effect,
   ElementRef,
-  input,
-  output,
+  inject,
   viewChild,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RoomChatMessage } from '../../models/room.model';
+import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ChatService} from '../../screens/room/chat.service';
 
 @Component({
   selector: 'app-chat',
@@ -20,11 +19,9 @@ import { RoomChatMessage } from '../../models/room.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Chat implements AfterViewInit {
-  readonly messages = input<RoomChatMessage[]>([]);
-  readonly send = output<string>();
-
   readonly messageControl = new FormControl('', [Validators.required]);
-
+  private readonly chatService = inject(ChatService);
+  readonly messages = this.chatService.messages;
   private readonly messageList =
     viewChild<ElementRef<HTMLElement>>('messageList');
 
@@ -39,12 +36,9 @@ export class Chat implements AfterViewInit {
     this.scrollToBottom();
   }
 
-  onSubmit(event: Event): void {
-    // A bare <form> has no Angular form directive, so stop the native
-    // submit from reloading the whole page.
-    event.preventDefault();
+  onSubmit(): void {
     if (this.messageControl.invalid) return;
-    this.send.emit(this.messageControl.value!);
+    this.chatService.send(this.messageControl.value!);
     this.messageControl.reset();
   }
 
