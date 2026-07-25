@@ -8,7 +8,6 @@ interface PlaylistStatePayload {
   currentIndex: number;
 }
 
-/** Scoped per room via the Room component's providers. */
 @Injectable()
 export class PlaylistService {
   private readonly socket = inject(SocketService);

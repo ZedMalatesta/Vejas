@@ -57,9 +57,6 @@ export class Room implements OnInit, OnDestroy {
   private heartbeat: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
-    // Everyone follows broadcast playback state; PlaybackService already
-    // suppresses reportLocal() while we're the one applying a remote update,
-    // so there's no separate echo window to manage here.
     effect(() => {
       const state = this.playback.remoteUpdate();
       const player = this.player();
@@ -75,8 +72,6 @@ export class Room implements OnInit, OnDestroy {
       }
     });
 
-    // While a controller's video actually plays, keep broadcasting the
-    // position so late joiners and drifted viewers stay in sync.
     effect(() => {
       if (this.canControl()) {
         this.startHeartbeat();
@@ -130,8 +125,6 @@ export class Room implements OnInit, OnDestroy {
     if (this.heartbeat) return;
     this.heartbeat = setInterval(() => {
       const player = this.player();
-      // Only report reality: a paused player must not broadcast
-      // isPlaying=true and resume everyone else.
       if (player?.ready() && player.isPlaying()) {
         this.playback.reportLocal(true, player.currentTime());
       }
