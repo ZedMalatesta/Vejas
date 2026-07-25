@@ -9,7 +9,7 @@
     "test": "ng test",
     "lint": "eslint src",
     "start:prod": "ng serve --configuration production",
-    "start:local": "cd ./Vejas-backend && npm install && npm run docker:build && cd .. && npm install && npm start"
+    "start:local": "cd ./vejas-backend && npm install && npm run docker:build && cd .. && npm install && npm start"
   },
   "type": "module",
   "private": true,
