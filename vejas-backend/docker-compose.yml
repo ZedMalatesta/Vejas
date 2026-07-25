@@ -1,0 +1,71 @@
+services:
+  db:
+    container_name: vejas-backend-v2-db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-vejas-backend-v2_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - vejas-backend-v2-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    container_name: vejas-backend-v2-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - vejas-backend-v2-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    container_name: vejas-backend-v2-app
+    build:
+      context: .
+      target: builder
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    environment:
+      PORT: ${PORT:-4000}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-vejas-backend-v2_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-vejas-backend-v2_db}?schema=public
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vejas-backend-v2-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start:dev"
+
+volumes:
+  pgdata:
+
+networks:
+  vejas-backend-v2-network:
+    driver: bridge
