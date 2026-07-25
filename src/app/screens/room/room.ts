@@ -1,83 +1,85 @@
-import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, viewChild,} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {Chat} from '../../shared/chat/chat';
-import {Header} from '../../shared/header/header';
-import {LinkInput} from '../../shared/link-input/link-input';
-import {Playlist} from '../../shared/playlist/playlist';
-import {PlayerStateChange, VideoPlayer} from '../../shared/video-player/video-player';
-import {ViewersPipe} from '../../core/pipes/viewers-pipe';
-import {shouldSeek} from '../../utils/playback-sync';
-import {RoomSessionService} from './room-session.service';
-import {APP_BRAND} from '../../core/brand';
-import {Bookmarks} from './components/bookmarks/bookmarks';
-import {BookmarkService} from './services/bookmark.service';
-import {Footer} from "../../shared/footer/footer";
+import { Component, computed, effect, inject, ChangeDetectionStrategy, signal, viewChild, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { VideoPlayer, PlayerStateChange } from '../../shared/video-player/video-player';
+import { LinkInput } from '../../shared/link-input/link-input';
+import { Playlist } from '../../shared/playlist/playlist';
+import { Chat } from '../../shared/chat/chat';
+import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
+import { Bookmarks } from './components/bookmarks/bookmarks';
+import { BookmarkService } from './services/bookmark.service';
+import { PlaylistService } from './playlist.service';
+import { ChatService } from './chat.service';
+import { PlaybackService } from './playback.service';
+import { SocketService } from '../../core/services/socket.service';
+import { RoomsService } from '../../core/services/rooms/rooms.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ViewersPipe } from '../../core/pipes/viewers-pipe';
+import { APP_BRAND } from '../../core/brand';
+import { shouldSeek } from '../../utils/playback-sync';
+import type { Room as RoomModel } from '../../models/room.model';
 
 const HEARTBEAT_MS = 5000;
-/** Player events fired within this window after a programmatic remote
- *  apply are echoes, not user actions — they must not be re-broadcast. */
-const REMOTE_ECHO_WINDOW_MS = 1200;
 
 @Component({
   selector: 'app-room',
   imports: [VideoPlayer, LinkInput, Playlist, Chat, RouterLink, ViewersPipe, Header, Footer, Bookmarks],
   templateUrl: './room.html',
-  styleUrl: './room.scss',
-  providers: [RoomSessionService],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './room.scss',
+  providers: [SocketService, PlaylistService, ChatService, PlaybackService],
 })
 export class Room implements OnInit, OnDestroy {
   protected readonly brand = inject(APP_BRAND);
-  protected readonly session = inject(RoomSessionService);
+  protected readonly playlist = inject(PlaylistService);
   protected readonly bookmarkService = inject(BookmarkService);
+  protected readonly isLoading = signal(true);
+  protected readonly loadError = signal<'not-found' | 'failed' | null>(null);
+  protected readonly room = signal<RoomModel | null>(null);
+
+  protected readonly isAdmin = computed(() => {
+    const room = this.room();
+    const user = this.auth.user();
+    return !!room && !!user && room.adminId === user.id;
+  });
+
+  /** The admin always controls playback; everyone does if the room allows it. */
+  protected readonly canControl = computed(
+    () => this.isAdmin() || !!this.room()?.allowGuestControl
+  );
+
   private readonly route = inject(ActivatedRoute);
+  private readonly rooms = inject(RoomsService);
+  private readonly auth = inject(AuthService);
+  private readonly chat = inject(ChatService);
+  private readonly playback = inject(PlaybackService);
   private readonly player = viewChild(VideoPlayer);
   private heartbeat: ReturnType<typeof setInterval> | null = null;
-  private lastRemoteApplyAt = 0;
 
   constructor() {
-    // Everyone follows broadcast playback state. The server never echoes
-    // an update back to its sender, so applying it here is always
-    // "someone else changed playback" — including the host receiving
-    // a viewer's pause in guest-control rooms.
+    // Everyone follows broadcast playback state; PlaybackService already
+    // suppresses reportLocal() while we're the one applying a remote update,
+    // so there's no separate echo window to manage here.
     effect(() => {
-      const playback = this.session.playback();
+      const state = this.playback.remoteUpdate();
       const player = this.player();
-      if (!player?.ready()) return;
+      if (!state || !player?.ready()) return;
 
-      // Extrapolate the position: the snapshot was taken at updatedAt.
-      const elapsed = playback.isPlaying
-        ? (Date.now() - new Date(playback.updatedAt).getTime()) / 1000
-        : 0;
-      const targetTime = playback.currentTime + elapsed;
-
-      // Only touch the player when reality differs from the target.
-      // Blind pause() on a freshly cued (never started) player throws
-      // YouTube into an "unstarted+paused" black screen.
-      let applied = false;
-      if (playback.isPlaying) {
-        if (shouldSeek(player.currentTime(), targetTime)) {
-          player.seekTo(targetTime);
-          applied = true;
-        }
-        if (!player.isPlaying()) {
-          player.play();
-          applied = true;
-        }
-      } else if (player.isPlaying()) {
-        player.pause();
-        applied = true;
+      if (shouldSeek(player.currentTime(), state.currentTime)) {
+        player.seekTo(state.currentTime);
       }
-
-      if (applied) {
-        this.lastRemoteApplyAt = Date.now();
+      if (state.isPlaying && !player.isPlaying()) {
+        player.play();
+      } else if (!state.isPlaying && player.isPlaying()) {
+        player.pause();
       }
     });
 
     // While a controller's video actually plays, keep broadcasting the
     // position so late joiners and drifted viewers stay in sync.
     effect(() => {
-      if (this.session.canControl()) {
+      if (this.canControl()) {
         this.startHeartbeat();
       } else {
         this.stopHeartbeat();
@@ -87,32 +89,34 @@ export class Room implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const roomId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.session.load(roomId);
     this.bookmarkService.setRoom(roomId);
+
+    this.rooms.getRoom(roomId).subscribe({
+      next: ({ state, ...room }) => {
+        this.room.set(room);
+        this.chat.applySnapshot(state.messages);
+        this.playlist.applySnapshot(state.playlist, state.currentIndex);
+        this.playback.applySnapshot(state.playback.isPlaying, state.playback.currentTime);
+        this.isLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loadError.set(err.status === 404 ? 'not-found' : 'failed');
+        this.isLoading.set(false);
+      },
+    });
   }
 
   ngOnDestroy(): void {
     this.stopHeartbeat();
-    this.session.leave();
   }
 
-  onPlayerState({isPlaying, currentTime}: PlayerStateChange): void {
-    // A state change right after a remote apply is our own player
-    // reacting to that apply — re-broadcasting it would ping-pong
-    // play/pause between clients.
-    if (Date.now() - this.lastRemoteApplyAt < REMOTE_ECHO_WINDOW_MS) {
-      return;
-    }
-    this.session.updatePlayback(isPlaying, currentTime);
+  onPlayerState({ isPlaying, currentTime }: PlayerStateChange): void {
+    this.playback.reportLocal(isPlaying, currentTime);
   }
 
   addBookmark(): void {
     const player = this.player();
-
-    if (!player) {
-      return;
-    }
-
+    if (!player) return;
     this.bookmarkService.addBookmark(
       `Bookmark ${this.bookmarkService.count() + 1}`,
       player.currentTime(),
@@ -130,7 +134,7 @@ export class Room implements OnInit, OnDestroy {
       // Only report reality: a paused player must not broadcast
       // isPlaying=true and resume everyone else.
       if (player?.ready() && player.isPlaying()) {
-        this.session.updatePlayback(true, player.currentTime());
+        this.playback.reportLocal(true, player.currentTime());
       }
     }, HEARTBEAT_MS);
   }
@@ -141,6 +145,4 @@ export class Room implements OnInit, OnDestroy {
       this.heartbeat = null;
     }
   }
-
-
 }
