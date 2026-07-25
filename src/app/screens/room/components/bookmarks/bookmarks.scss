@@ -1,0 +1,56 @@
+.bookmarks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bookmarks__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.bookmarks__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 0;
+  margin: 0;
+
+  list-style: none;
+}
+
+.bookmarks__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  background: #232323;
+}
+
+.bookmarks__time {
+  font-weight: 700;
+}
+
+.bookmarks__text {
+  font-size: 14px;
+  opacity: .8;
+}
+
+.bookmarks__delete {
+  cursor: pointer;
+
+  border: none;
+  background: transparent;
+
+  font-size: 18px;
+}
+
+.bookmarks__empty {
+  opacity: .6;
+}
