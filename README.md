@@ -2,9 +2,9 @@
 
 An application that allows users to connect on a platform to synchronize their shared viewing of online content.
 
-**Live:** [https://zedmalatesta.github.io/Vejas-frontend/](https://zedmalatesta.github.io/Vejas-frontend/)
+**Live:** [https://zedmalatesta.github.io/Vejas/](https://zedmalatesta.github.io/Vejas/)
 
-**Demo video:** [Watch demo](https://zedmalatesta.github.io/Vejas-frontend/assets/demo.mp4)
+**Demo video:** [Watch demo](https://zedmalatesta.github.io/Vejas/assets/demo.mp4)
 
 ## Collaborators
 

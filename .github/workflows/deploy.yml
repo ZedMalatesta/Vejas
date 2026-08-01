@@ -29,7 +29,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build -- --base-href /Vejas-frontend/
+      - run: npm run build -- --base-href /Vejas/
 
       - uses: actions/upload-pages-artifact@v3
         with:
